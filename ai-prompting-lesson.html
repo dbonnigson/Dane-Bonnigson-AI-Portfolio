@@ -513,7 +513,7 @@
   <!-- ============ 8. POSTTEST + assessment anchor ============ -->
   <section class="block" id="assessment">
     <div class="tag">Check Yourself &middot; 3 Questions</div>
-    <h2>Posttest</h2>
+    <h2>Post-test</h2>
     <p>Answer all three. You'll get feedback on each, then a final score. 2 of 3 to pass. Your score is saved on this device.</p>
     <div id="posttestQuestions"></div>
     <div class="scorebox" id="posttestScore"></div>
@@ -673,7 +673,7 @@ function showCompletion(){
     const txt = document.getElementById('doneText');
     let msg = 'You completed this lesson.';
     if (typeof data.posttestScore === 'number')
-      msg += ' Posttest: ' + data.posttestScore + '/' + (data.posttestTotal || 3) + '.';
+      msg += ' Post-test: ' + data.posttestScore + '/' + (data.posttestTotal || 3) + '.';
     if (data.completedAt) msg += ' (' + new Date(data.completedAt).toLocaleDateString() + ')';
     txt.textContent = msg;
     banner.classList.add('show');
