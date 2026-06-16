@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Better Prompts, Safer AI · 10-Minute Lesson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0d1b3e; --navy-mid:#152754; --navy-light:#1e3a6e; --navy-pale:#e8edf6;
+    --black:#0a0c10; --white:#ffffff; --off:#f6f8fc; --line:#dce3f0;
+    --text:#0a0c10; --text-mid:#414a5e; --text-light:#7a849a;
+    --warn-bg:#fff7ed; --warn-line:#f0c98a; --warn-ink:#7a4b00;
+    --ok-bg:#eef7f0; --ok-line:#bcdcc4; --ok-ink:#1d5a30;
+    --bad-bg:#fdf2f2; --bad-line:#f0cccc; --bad-ink:#a13232;
+    --nav-h:56px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Instrument Sans',sans-serif;color:var(--text);background:var(--off);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  a{color:var(--navy)}
+
+  /* ---------- 1. HEADER ---------- */
+  header.hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);color:#fff;padding:46px 0 40px}
+  .badge{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;background:rgba(255,255,255,.14);padding:6px 12px;border-radius:30px;margin-bottom:16px}
+  header.hero h1{font-family:'Playfair Display',serif;font-weight:700;font-size:2.25rem;line-height:1.12;margin-bottom:12px}
+  header.hero h1 em{font-style:italic;color:#bcd0ff}
+  header.hero .obj{font-size:1.05rem;color:#d6deef;max-width:660px}
+  .hmeta{display:flex;gap:14px;margin-top:22px;flex-wrap:wrap;align-items:center}
+  .pill{font-size:.78rem;font-weight:500;background:rgba(255,255,255,.12);color:#e3e9f6;border:1px solid rgba(255,255,255,.18);padding:5px 12px;border-radius:20px}
+  .pill.time{background:#fff;color:var(--navy);font-weight:600;border-color:#fff}
+  .pill.diff{background:rgba(188,208,255,.18);color:#cfe0ff;border-color:rgba(188,208,255,.4)}
+  .roles{display:flex;gap:7px;flex-wrap:wrap}
+
+  /* ---------- 2. HERO VIDEO ---------- */
+  .video-wrap{margin:26px 0 4px}
+  .video{position:relative;background:linear-gradient(135deg,#10204a,#0a1530);border-radius:14px;overflow:hidden;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.08)}
+  .video video{width:100%;height:100%;object-fit:cover;display:block}
+  .video .placeholder{text-align:center;color:#9fb0d6;padding:20px}
+  .video .placeholder .label{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;margin-top:10px}
+  .play-overlay{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(8,16,38,.25);transition:background .2s}
+  .play-overlay:hover{background:rgba(8,16,38,.1)}
+  .play-btn{width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+  .play-btn::after{content:"";border-style:solid;border-width:13px 0 13px 22px;border-color:transparent transparent transparent var(--navy);margin-left:5px}
+  .video-cover{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:space-between;padding:26px 30px;background:linear-gradient(135deg,#10204a,#0a1530);text-align:left}
+  .video-cover::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 620px 340px at 72% 22%,rgba(188,208,255,.16),transparent 60%);pointer-events:none}
+  .cover-pill{position:relative;z-index:1;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:#cfe0ff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:6px 13px;border-radius:30px}
+  .cover-title{position:relative;z-index:1;font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.5rem,4.4vw,2.6rem);line-height:1.1;color:#fff;margin:12px 0 0;max-width:18ch}
+  .cover-title em{font-style:italic;color:#bcd0ff}
+  .cover-sub{position:relative;z-index:1;font-size:.92rem;color:#aebbd9;margin:8px 0 0;max-width:38ch}
+  .cover-foot{position:relative;z-index:1;font-size:.76rem;letter-spacing:.05em;color:#8fa0c6}
+  @media(max-width:560px){.video-cover{padding:18px 20px}.cover-sub{display:none}}
+  .video-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .vc-btn{font-size:.82rem;font-weight:500;border:1px solid var(--line);background:#fff;color:var(--text-mid);border-radius:8px;padding:7px 14px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+  .vc-btn:hover{border-color:var(--navy-light);color:var(--navy)}
+  .vc-btn.on{background:var(--navy-pale);border-color:var(--navy-light);color:var(--navy)}
+  #transcript{display:none;margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:16px 18px;font-size:.92rem;color:var(--text-mid);max-height:240px;overflow:auto}
+  #transcript.show{display:block}
+  #transcript p{margin-bottom:8px}
+  #transcript .ts{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--navy);margin-right:8px}
+
+  /* ---------- 3. STICKY NAV ---------- */
+  nav.sticky{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);box-shadow:0 1px 6px rgba(13,27,62,.05)}
+  nav.sticky .inner{max-width:880px;margin:0 auto;display:flex;gap:4px;padding:0 12px;overflow-x:auto;height:var(--nav-h);align-items:center}
+  nav.sticky a{flex-shrink:0;font-size:.86rem;font-weight:500;color:var(--text-mid);text-decoration:none;padding:8px 14px;border-radius:8px;white-space:nowrap}
+  nav.sticky a:hover{background:var(--off);color:var(--navy)}
+  nav.sticky a.active{background:var(--navy);color:#fff}
+
+  main{padding:30px 0 70px}
+  section.block{background:#fff;border:1px solid var(--line);border-radius:14px;padding:28px 30px;margin-bottom:20px;box-shadow:0 1px 3px rgba(13,27,62,.04);scroll-margin-top:calc(var(--nav-h) + 14px)}
+  .tag{display:inline-block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--navy);background:var(--navy-pale);padding:5px 11px;border-radius:6px;margin-bottom:14px}
+  h2{font-family:'Playfair Display',serif;font-weight:700;font-size:1.55rem;line-height:1.18;color:var(--navy);margin-bottom:10px}
+  h3{font-family:'Playfair Display',serif;font-weight:600;font-size:1.1rem;color:var(--navy);margin-bottom:4px}
+  p{margin-bottom:12px;color:var(--text-mid)}
+  p strong,li strong{color:var(--text)}
+  .lead{font-size:1.04rem;color:var(--text)}
+
+  /* ---------- 4. QUICK REFERENCE ---------- */
+  .qr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+  ol.steps{list-style:none;counter-reset:s;margin-top:16px}
+  ol.steps li{position:relative;counter-increment:s;padding:12px 0 12px 46px;border-bottom:1px solid var(--line)}
+  ol.steps li:last-child{border-bottom:none}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:11px;width:30px;height:30px;border-radius:8px;background:var(--navy);color:#fff;font-weight:600;font-family:'Playfair Display',serif;display:flex;align-items:center;justify-content:center;font-size:.95rem}
+  ol.steps li b{color:var(--text)}
+  .pitfalls{margin-top:18px;background:var(--warn-bg);border:1px solid var(--warn-line);border-left:5px solid #e08a00;border-radius:10px;padding:16px 20px}
+  .pitfalls h3{color:var(--warn-ink)}
+  .pitfalls ul{list-style:none;margin-top:8px}
+  .pitfalls li{position:relative;padding:5px 0 5px 22px;color:#5a4a20;font-size:.94rem}
+  .pitfalls li::before{content:"\26A0";position:absolute;left:0;top:5px;font-size:.85rem}
+  .print-btn{flex-shrink:0;font-size:.82rem;font-weight:500;border:1px solid var(--navy-light);background:#fff;color:var(--navy);border-radius:8px;padding:8px 15px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+  .print-btn:hover{background:var(--navy-pale)}
+
+  /* ---------- 5. PROMPT COMPARISON ---------- */
+  .compare{display:grid;gap:16px;margin-top:18px}
+  @media(min-width:700px){.compare{grid-template-columns:1fr 1fr}}
+  .pcard{border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;transition:.18s;background:var(--off)}
+  .pcard:hover{border-color:var(--navy-light);box-shadow:0 4px 14px rgba(13,27,62,.07)}
+  .pcard.standard{border-top:4px solid #c98a3a}
+  .pcard.better{border-top:4px solid #2f8a4d}
+  .pcard .phead{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .pcard h3{margin:0;font-size:1.05rem}
+  .pcard.standard h3{color:#9a5e16}
+  .pcard.better h3{color:#1d5a30}
+  .pcard .sub{font-size:.85rem;color:var(--text-light);margin-top:2px}
+  .chev{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;transition:transform .2s}
+  .pcard.open .chev{transform:rotate(180deg)}
+  .chev::after{content:"";border-style:solid;border-width:6px 5px 0 5px;border-color:var(--navy) transparent transparent transparent}
+  .pbody{max-height:0;overflow:hidden;transition:max-height .3s ease;background:#fff;border-top:1px solid transparent}
+  .pcard.open .pbody{max-height:900px;border-top-color:var(--line)}
+  .pbody .inner{padding:16px 18px}
+  .pbody .mini-lbl{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--text-light);margin-bottom:6px}
+  .pbody .prompt-text{font-family:'JetBrains Mono',monospace;font-size:.84rem;color:#e8eefc;background:var(--navy);border-radius:8px;padding:13px 15px;white-space:pre-wrap;line-height:1.5}
+  .pbody .output{margin-top:14px;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:.9rem;color:var(--text-mid);background:var(--off)}
+  .pbody .output .mini-lbl{color:var(--navy)}
+  .pbody .verdict{margin-top:12px;font-size:.86rem;font-weight:500;padding:9px 12px;border-radius:8px}
+  .pcard.standard .verdict{background:var(--bad-bg);border:1px solid var(--bad-line);color:var(--bad-ink)}
+  .pcard.better .verdict{background:var(--ok-bg);border:1px solid var(--ok-line);color:var(--ok-ink)}
+
+  /* ---------- 6. WALKTHROUGH ACCORDION ---------- */
+  .accordion{margin-top:16px}
+  .acc-item{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden;background:#fff}
+  .acc-item.open{border-color:var(--navy-light)}
+  .acc-head{display:flex;gap:13px;align-items:center;padding:15px 18px;cursor:pointer;user-select:none}
+  .acc-head:hover{background:var(--off)}
+  .acc-num{flex-shrink:0;width:28px;height:28px;border-radius:7px;background:var(--navy-pale);color:var(--navy);font-weight:600;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-family:'Playfair Display',serif}
+  .acc-item.open .acc-num{background:var(--navy);color:#fff}
+  .acc-head .htxt{flex:1;font-weight:600;color:var(--text)}
+  .acc-head .plus{flex-shrink:0;font-size:1.3rem;color:var(--navy);transition:transform .2s}
+  .acc-item.open .plus{transform:rotate(45deg)}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .acc-item.open .acc-body{max-height:1200px}
+  .acc-body .inner{padding:4px 18px 20px 59px}
+  .shot{border:1px dashed var(--navy-light);border-radius:9px;background:repeating-linear-gradient(45deg,var(--off),var(--off) 12px,#eef2fa 12px,#eef2fa 24px);min-height:150px;display:flex;align-items:center;justify-content:center;color:var(--text-light);font-size:.82rem;text-align:center;margin:14px 0;letter-spacing:.04em;text-transform:uppercase;font-weight:500}
+  .rolevar{border-left:3px solid var(--navy-light);background:var(--off);border-radius:0 8px 8px 0;padding:11px 15px;font-size:.9rem;margin-top:8px}
+  .rolevar b{color:var(--navy)}
+  .acc-body .snippet{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:#e8eefc;background:var(--navy);border-radius:8px;padding:12px 14px;white-space:pre-wrap;line-height:1.5;margin:12px 0}
+  .acc-body .snippet .sl{display:block;font-family:'Instrument Sans',sans-serif;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:#9fb0d6;margin-bottom:6px}
+  .acc-body .seewhat{font-size:.9rem;color:var(--text-mid);background:var(--ok-bg);border:1px solid var(--ok-line);border-radius:8px;padding:10px 13px;margin:10px 0}
+  .acc-body .seewhat b{color:var(--ok-ink)}
+
+  /* ---------- 7. DEEP DIVE ---------- */
+  .deepdive{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+  .deepdive>summary{list-style:none;cursor:pointer;padding:20px 26px;display:flex;align-items:center;gap:12px;font-weight:600;color:var(--navy);font-family:'Playfair Display',serif;font-size:1.2rem}
+  .deepdive>summary::-webkit-details-marker{display:none}
+  .deepdive>summary .dd-tag{font-family:'Instrument Sans',sans-serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--text-light);background:var(--off);border:1px solid var(--line);padding:4px 9px;border-radius:20px;margin-left:auto}
+  .deepdive>summary .arrow{transition:transform .2s}
+  .deepdive[open]>summary .arrow{transform:rotate(90deg)}
+  .deepdive .dd-content{padding:4px 26px 26px;border-top:1px solid var(--line)}
+  .deepdive .dd-content h3{margin:16px 0 4px}
+
+  /* ---------- 8/9. QUIZ ---------- */
+  .q{border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-top:14px}
+  .q .qp{font-weight:600;color:var(--text);margin-bottom:10px}
+  .q .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:8px;padding:11px 14px;margin-bottom:8px;cursor:pointer;font:inherit;color:var(--text-mid);transition:.15s}
+  .q .opt:hover{border-color:var(--navy-light);background:var(--off)}
+  .q .opt.correct{border-color:var(--ok-line);background:var(--ok-bg);color:var(--ok-ink);font-weight:500}
+  .q .opt.wrong{border-color:var(--bad-line);background:var(--bad-bg);color:var(--bad-ink)}
+  .q .opt:disabled{cursor:default}
+  .q .exp{display:none;margin-top:8px;font-size:.9rem;color:var(--text-mid);background:var(--off);border-radius:8px;padding:12px 14px}
+  .q .exp.show{display:block}
+  .scorebox{display:none;margin-top:18px;border-radius:10px;padding:16px 20px;font-size:1rem;font-weight:600;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .scorebox.show{display:flex}
+  .scorebox.pass{background:var(--ok-bg);border:1px solid var(--ok-line);color:var(--ok-ink)}
+  .scorebox.fail{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink)}
+  .retake{font-size:.85rem;font-weight:500;border:1px solid currentColor;background:#fff;color:inherit;border-radius:8px;padding:7px 14px;cursor:pointer}
+  .retake:hover{background:rgba(0,0,0,.03)}
+
+  /* pretest form */
+  .capture{display:grid;gap:12px;margin-top:14px;max-width:460px}
+  .capture label{font-size:.85rem;font-weight:500;color:var(--text);display:block;margin-bottom:4px}
+  .capture input{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 13px;font:inherit;color:var(--text)}
+  .capture input:focus{outline:none;border-color:var(--navy-light)}
+  .capture .start-btn{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:11px 18px;font-weight:600;cursor:pointer;font:inherit}
+  .capture .start-btn:hover{background:var(--navy-light)}
+  .pretest-note{font-size:.85rem;color:var(--text-light);margin-top:8px}
+
+  /* ---------- 10. RESOURCES ---------- */
+  .resgrid{display:grid;gap:12px;margin-top:16px}
+  @media(min-width:600px){.resgrid{grid-template-columns:1fr 1fr}}
+  .rescard{border:1px solid var(--line);border-radius:10px;padding:15px 17px;background:var(--off);text-decoration:none;display:block;transition:.15s}
+  .rescard:hover{border-color:var(--navy-light);background:#fff}
+  .rescard .rk{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--navy);margin-bottom:5px}
+  .rescard h3{font-size:1rem;margin-bottom:3px}
+  .rescard p{font-size:.88rem;margin:0;color:var(--text-mid)}
+  .next-steps{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+  .next-steps ul{list-style:none}
+  .next-steps li{position:relative;padding:7px 0 7px 24px;font-size:.95rem;color:var(--text-mid)}
+  .next-steps li::before{content:"\2192";position:absolute;left:0;top:7px;color:var(--navy);font-weight:700}
+
+  /* ---------- COMPLETION BANNER ---------- */
+  .done-banner{display:none;background:var(--ok-bg);border:1px solid var(--ok-line);color:var(--ok-ink);border-radius:12px;padding:14px 20px;margin-bottom:20px;font-weight:500;align-items:center;gap:12px}
+  .done-banner.show{display:flex}
+  .done-banner .ic{font-size:1.3rem}
+
+  /* ---------- 11. FOOTER ---------- */
+  footer.site{background:var(--navy);color:#cdd9f5;padding:30px 0 36px;font-size:.86rem}
+  footer.site .crumbs{margin-bottom:12px;color:#9fb0d6}
+  footer.site .crumbs a{color:#cdd9f5;text-decoration:none}
+  footer.site .crumbs a:hover{text-decoration:underline}
+  footer.site .crumbs span{margin:0 7px;color:#5f73a3}
+  footer.site .frow{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center;border-top:1px solid rgba(255,255,255,.12);padding-top:14px}
+  footer.site a.fb{color:#bcd0ff}
+
+  /* ---------- PRINT ---------- */
+  @media print{
+    body{background:#fff}
+    body * {visibility:hidden}
+    #quick-reference, #quick-reference *{visibility:visible}
+    #quick-reference{position:absolute;left:0;top:0;width:100%;border:none;box-shadow:none;padding:0;margin:0}
+    #quick-reference .print-btn{display:none}
+    nav.sticky{display:none}
+    @page{margin:0.6in}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. HEADER ============ -->
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">10-Minute Lesson</span>
+    <h1>Better Prompts, <em>Safer AI</em></h1>
+    <p class="obj">In ten minutes, learn to write a prompt that actually works using the CRAFT structure — and know exactly what's safe to paste into a public AI tool.</p>
+    <div class="hmeta">
+      <span class="pill time">&#9201; ~10 min</span>
+      <span class="pill diff">Difficulty: Beginner</span>
+      <span class="roles">
+        <span class="pill">Clinical Staff</span>
+        <span class="pill">Front Desk</span>
+        <span class="pill">Admin</span>
+        <span class="pill">All Roles</span>
+      </span>
+    </div>
+
+    <!-- ============ 2. HERO VIDEO ============ -->
+    <!--
+      ───────────────────────────────────────────────────────────
+      90-SECOND VIDEO SCRIPT  (shoot / voiceover notes)
+      Target run time: 1:30 · ~230 words · conversational pace ~155 wpm
+      ───────────────────────────────────────────────────────────
+      0:00  HOOK       [On-camera or title card]
+            "Two skills decide whether AI saves you an hour or hands you a
+            mess: writing a prompt that works, and knowing what's safe to
+            paste. Here's both in ninety seconds."
+
+      0:11  CRAFT      [Screen: build the word C-R-A-F-T, one letter at a time]
+            "Weak results usually come from weak prompts, not a weak model.
+            Use a five-part structure called CRAFT. Context — the situation
+            and your goal. Role — tell the AI who to be; this one matters
+            most. Action — one clear verb: write, rewrite, summarize.
+            Format — the exact shape, like three captions under thirty
+            words. Tone — how it should sound, with a quick example to match."
+
+      0:40  COMPARE    [Screen: split — vague prompt vs. CRAFT prompt + outputs]
+            "'Write something about our product' gets filler. 'You are a
+            copywriter; write three captions, under thirty words, warm and
+            playful' is usable on the first try. And when a draft's close but
+            off, don't start over — reply in the same chat: 'shorter, less
+            formal, keep the rest.'"
+
+      0:58  SAFETY     [Screen: postcard graphic, then a red 'do-not-paste' list]
+            "Now the safety rule: treat a public AI tool like a public
+            postcard. Free and personal chatbots may use what you type, and
+            you don't control where it goes. Never paste passwords, account
+            numbers, or anyone's personal or health information."
+
+      1:18  THE TEST   [Screen: bulletin-board test line; placeholder swap]
+            "The test is simple: if you wouldn't post it on a public bulletin
+            board, don't paste it in. Swap in placeholders, or use your
+            approved tool."
+
+      1:30  CLOSE      [Title card: Better Prompts, Safer AI]
+            "That's it — better prompts, safer AI. Go try one."
+      ───────────────────────────────────────────────────────────
+    -->
+    <div class="video-wrap">
+      <div class="video" id="videoBox">
+        <video id="lessonVideo" controls playsinline preload="metadata">
+          <source src="ai-prompting.mp4" type="video/mp4">
+          <!-- To add captions, drop a .vtt file beside this page and uncomment:
+          <track kind="captions" src="ai-prompting.vtt" srclang="en" label="English" default> -->
+          Your browser doesn't support embedded video.
+        </video>
+        <div class="video-cover" id="videoCover">
+          <div>
+            <span class="cover-pill">&#9654; 90-Second Overview</span>
+            <h2 class="cover-title">Better Prompts, <em>Safer AI</em></h2>
+            <p class="cover-sub">The CRAFT method and the one safety rule &mdash; in ninety seconds.</p>
+          </div>
+          <div class="cover-foot">Press play to watch</div>
+        </div>
+        <div class="play-overlay" id="playOverlay" onclick="playVideo()">
+          <div class="play-btn" aria-label="Play video"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 3. STICKY NAV ============ -->
+<nav class="sticky">
+  <div class="inner" id="navInner">
+    <a href="#quick-reference" data-target="quick-reference">Quick Reference</a>
+    <a href="#prompt-comparison" data-target="prompt-comparison">Prompt Comparison</a>
+    <a href="#walkthrough" data-target="walkthrough">Walkthrough</a>
+    <a href="#assessment" data-target="assessment">Assessment</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- completion banner (localStorage driven) -->
+  <div class="done-banner" id="doneBanner">
+    <span class="ic">&#10003;</span>
+    <span id="doneText">You completed this lesson.</span>
+  </div>
+
+  <!-- ============ 9. PRETEST (toggleable, default OFF) ============ -->
+  <section class="block" id="pretest" style="display:none">
+    <div class="tag">Before You Start &middot; Baseline Check</div>
+    <h2>Pretest</h2>
+    <p>Tell us who you are, then answer five quick baseline questions. This helps measure how much the lesson moves the needle. There's no passing score &mdash; just answer honestly.</p>
+
+    <div id="pretestCapture">
+      <form class="capture" onsubmit="startPretest(event)">
+        <div>
+          <label for="ptName">Name</label>
+          <input id="ptName" type="text" placeholder="Jordan Rivera" required>
+        </div>
+        <div>
+          <label for="ptEmail">Email</label>
+          <input id="ptEmail" type="email" placeholder="jordan@example.com" required>
+        </div>
+        <button class="start-btn" type="submit">Start the pretest &rarr;</button>
+        <p class="pretest-note">Your name and email are stored only on this device (localStorage). No data leaves your browser in this template.</p>
+      </form>
+    </div>
+
+    <div id="pretestQuiz" style="display:none">
+      <p id="pretestGreeting" style="font-weight:600;color:var(--text)"></p>
+      <div id="pretestQuestions"></div>
+      <div class="scorebox" id="pretestScore"></div>
+    </div>
+  </section>
+
+  <!-- ============ 4. QUICK REFERENCE ============ -->
+  <section class="block" id="quick-reference">
+    <div class="qr-head">
+      <div>
+        <div class="tag">Quick Reference</div>
+        <h2>The whole lesson on one screen</h2>
+      </div>
+      <button class="print-btn" onclick="printQuickRef()">&#128424; Print this section</button>
+    </div>
+    <p class="lead">CRAFT &mdash; five parts of a prompt that works. Name these five things and the output gets dramatically better.</p>
+    <ol class="steps">
+      <li><b>Context</b> &mdash; the situation and your goal. <em>"I run a small clinic launching evening telehealth hours."</em> Leave out anything private.</li>
+      <li><b>Role</b> &mdash; tell the AI who to be. <em>"You are a patient-communications writer."</em> The single highest-leverage change you can make.</li>
+      <li><b>Action</b> &mdash; one clear, verb-driven task: write, rewrite, summarize, compare, list.</li>
+      <li><b>Format</b> &mdash; the shape of the output: "three captions under 30 words," "a 5-row table."</li>
+      <li><b>Tone &amp; examples</b> &mdash; how it should sound, plus a sample to match.</li>
+    </ol>
+    <div class="pitfalls">
+      <h3>Common pitfalls</h3>
+      <ul>
+        <li>Starting a brand-new chat to fix a draft &mdash; iterate in the same chat instead, so you keep the context.</li>
+        <li>Pasting real names, account numbers, or health details into a public/personal AI tool.</li>
+        <li>Skipping the Role &mdash; "help me with this" gets a shrug; a role reframes the whole answer.</li>
+        <li>Giving no Format, then being surprised the output is the wrong length or shape.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 5. PROMPT COMPARISON ============ -->
+  <section class="block" id="prompt-comparison">
+    <div class="tag">See It In Action</div>
+    <h2>Same task, two prompts</h2>
+    <p>Click each card to reveal the prompt and the kind of output it produces. Same request for social captions &mdash; lazy vs. CRAFT.</p>
+    <div class="compare">
+      <div class="pcard standard" onclick="togglePCard(this)">
+        <div class="phead">
+          <div>
+            <h3>Standard Prompt</h3>
+            <div class="sub">Vague &middot; one line</div>
+          </div>
+          <div class="chev"></div>
+        </div>
+        <div class="pbody">
+          <div class="inner">
+            <div class="mini-lbl">The prompt</div>
+            <div class="prompt-text">write something about our new product</div>
+            <div class="output">
+              <div class="mini-lbl">AI output</div>
+              "Introducing our new product! We're so excited to share it with you. It has many great features and benefits that you'll love. Check it out today and let us know what you think!"
+            </div>
+            <div class="verdict">&#10007; No role, no audience, no format, no tone. Generic filler &mdash; you'll spend three more messages fixing it.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard better" onclick="togglePCard(this)">
+        <div class="phead">
+          <div>
+            <h3>Better Prompt</h3>
+            <div class="sub">CRAFT &middot; specific</div>
+          </div>
+          <div class="chev"></div>
+        </div>
+        <div class="pbody">
+          <div class="inner">
+            <div class="mini-lbl">The prompt</div>
+            <div class="prompt-text">You are a marketing copywriter. I run a small coffee subscription launching a decaf blend for evening drinkers. Write 3 Instagram captions, under 30 words each, warm and a little playful, each ending with a question.</div>
+            <div class="output">
+              <div class="mini-lbl">AI output</div>
+              1. "Your 9pm cup just got an upgrade &mdash; all the ritual, none of the buzz. What's your wind-down drink?"<br><br>
+              2. "Decaf that doesn't taste like a compromise. Ready to reclaim your evenings?"<br><br>
+              3. "Bold flavor, gentle finish, zero 2am regrets. Who's joining the evening club?"
+            </div>
+            <div class="verdict">&#10003; Role, Context, Action, Format, Tone &mdash; usable on the first try.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:16px;margin-bottom:0"><strong>When the first draft misses, iterate &mdash; don't restart.</strong> "Make them shorter and drop the emojis. Keep the questions." A follow-up keeps all the context; a new chat throws it away.</p>
+  </section>
+
+  <!-- ============ 6. WALKTHROUGH ============ -->
+  <section class="block" id="walkthrough">
+    <div class="tag">Step-by-Step Walkthrough</div>
+    <h2>Build a CRAFT prompt, one part at a time</h2>
+    <p>We'll build one real prompt together &mdash; a short note telling existing patients the clinic is adding Saturday hours. Follow along in your own approved tool and swap in your details.</p>
+    <div class="accordion" id="accordion">
+
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <span class="acc-num">1</span>
+          <span class="htxt">Open your approved AI tool and start a fresh chat</span>
+          <span class="plus">+</span>
+        </div>
+        <div class="acc-body"><div class="inner">
+          <p>Open the AI tool your organization approves and start a <em>new</em> chat &mdash; a fresh chat carries no leftover context from someone else's task. For anything work-confidential, use the business account, not a personal login.</p>
+          <div class="seewhat"><b>What you'll see:</b> an empty message box and, usually, a note of which account or workspace you're in. Confirm it's the approved one before you type anything.</div>
+          <div class="rolevar"><b>Role variation:</b> Clinical staff should default to the approved, HIPAA-covered tool for anything touching patient information. Front-desk and admin staff can use the general business tool for non-PHI tasks.</div>
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <span class="acc-num">2</span>
+          <span class="htxt">Lead with the Role and Context</span>
+          <span class="plus">+</span>
+        </div>
+        <div class="acc-body"><div class="inner">
+          <p>Start with who the AI should be (Role), then the situation and your goal (Context) &mdash; minus any private details. Type this as your first message:</p>
+          <div class="snippet"><span class="sl">Type this &mdash; Role + Context</span>You are a patient-communications writer for a primary care clinic. We're adding Saturday morning hours, 8am to noon, starting July 12, and we want to let existing patients know.</div>
+          <div class="seewhat"><b>What you'll see:</b> the AI may acknowledge and offer to draft right away. That's fine &mdash; you'll hand it the rest in the next step.</div>
+          <div class="rolevar"><b>Role variation:</b> A scheduler might use "calm, concise front-desk coordinator"; a manager might use "operations lead briefing staff." Same structure, different voice.</div>
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <span class="acc-num">3</span>
+          <span class="htxt">Add the Action, Format, and Tone</span>
+          <span class="plus">+</span>
+        </div>
+        <div class="acc-body"><div class="inner">
+          <p>Now add the Action (one clear task), the Format (the exact shape), and the Tone (how it should sound, with a sample to match). Put together, your full CRAFT prompt reads like this:</p>
+          <div class="snippet"><span class="sl">The assembled CRAFT prompt</span>You are a patient-communications writer for a primary care clinic. We're adding Saturday morning hours, 8am to noon, starting July 12, and we want to let existing patients know. Write a short announcement we can send as both a text and an email. Keep it under 90 words, friendly and reassuring, and end with one clear line on how to book. Match this opening tone: "A quick heads-up from your care team &mdash;"</div>
+          <div class="seewhat"><b>What you'll see:</b> a ready-to-use draft that fits the length, sounds the way you asked, and ends with a booking line &mdash; not generic filler.</div>
+          <div class="rolevar"><b>Role variation:</b> Admin staff often want a table or checklist; clinical staff more often want a plain-language patient summary. Name whichever shape fits your output.</div>
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <div class="acc-head" onclick="toggleAcc(this)">
+          <span class="acc-num">4</span>
+          <span class="htxt">Review the draft and iterate in the same chat</span>
+          <span class="plus">+</span>
+        </div>
+        <div class="acc-body"><div class="inner">
+          <p>Read the draft. If it's close but not quite right, reply <em>in the same chat</em> with a targeted fix &mdash; don't start a new chat, which throws away everything you've set up.</p>
+          <div class="snippet"><span class="sl">Type this &mdash; a follow-up, not a restart</span>This is close. Make it a touch warmer, drop the word "utilize," and add one line that walk-ins are welcome. Keep everything else.</div>
+          <div class="seewhat"><b>What you'll see:</b> the same announcement, revised &mdash; warmer, your edits applied, the rest intact. Repeat until it's right.</div>
+          <div class="rolevar"><b>Checkpoint for every role:</b> a person reviews the final wording before anything goes to patients. The AI drafts; you approve.</div>
+        </div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 7. DEEP DIVE ============ -->
+  <section class="block" id="deep-dive" style="padding:0;border:none;box-shadow:none;background:transparent">
+    <details class="deepdive">
+      <summary><span class="arrow">&#9656;</span> Deep Dive: Why a public AI tool is like a public postcard <span class="dd-tag">Optional</span></summary>
+      <div class="dd-content">
+        <p>Free and personal chatbots (ChatGPT, Claude, Gemini, Copilot on a personal account) may use what you type to improve their models, and you don't control where it goes. That's fine for a recipe; it's a problem for anything private.</p>
+        <h3>The one-line test</h3>
+        <p>If you wouldn't post it on a public bulletin board, don't paste it into a public AI tool.</p>
+        <h3>Three habits that keep you safe without slowing you down</h3>
+        <p><strong>Swap in placeholders.</strong> "A patient," "Company X," "my coworker" instead of real names and numbers &mdash; the AI doesn't need the real ones to help.</p>
+        <p><strong>Strip before you paste.</strong> Rewriting an email? Drop the signature, phone numbers, and account IDs first &mdash; paste only the part you need rewritten.</p>
+        <p><strong>Use the approved tool for sensitive work.</strong> A provided business AI account has different data protections than a personal login.</p>
+        <h3>Never paste these into a public/personal tool</h3>
+        <p>Passwords and login codes; full Social Security or financial account numbers; other people's personal details (names, contact info, health information); and confidential company, client, or patient information.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ 8. POSTTEST + assessment anchor ============ -->
+  <section class="block" id="assessment">
+    <div class="tag">Check Yourself &middot; 3 Questions</div>
+    <h2>Posttest</h2>
+    <p>Answer all three. You'll get feedback on each, then a final score. 2 of 3 to pass. Your score is saved on this device.</p>
+    <div id="posttestQuestions"></div>
+    <div class="scorebox" id="posttestScore"></div>
+  </section>
+
+  <!-- ============ 10. RESOURCES & NEXT STEPS ============ -->
+  <section class="block" id="resources">
+    <div class="tag">Related Resources</div>
+    <h2>Go deeper &amp; what to do next</h2>
+    <div class="resgrid">
+      <a class="rescard" href="craft-cheat-sheet.html">
+        <div class="rk">Handout</div>
+        <h3>CRAFT Prompt Cheat-Sheet</h3>
+        <p>One-page leave-behind with the five parts and a fill-in template.</p>
+      </a>
+      <a class="rescard" href="safe-to-paste-checklist.html">
+        <div class="rk">Job Aid</div>
+        <h3>"What's Safe to Paste" Checklist</h3>
+        <p>The do-not-paste list and the public-postcard test, printable.</p>
+      </a>
+      <a class="rescard" href="approved-ai-tool.html">
+        <div class="rk">Get Started</div>
+        <h3>Your Approved AI Tool</h3>
+        <p>Where to log in and run your first CRAFT prompt.</p>
+      </a>
+      <a class="rescard" href="next-lesson-iterating.html">
+        <div class="rk">Next Lesson</div>
+        <h3>Iterating &amp; Refining Output</h3>
+        <p>Turn a so-so first draft into a finished one.</p>
+      </a>
+    </div>
+    <div class="next-steps">
+      <h3>Next steps</h3>
+      <ul>
+        <li>Save the CRAFT template into your own prompt "swipe file" and reuse it.</li>
+        <li>Run the "would I post this publicly?" test on your next real task before pasting.</li>
+        <li>Complete the <a href="next-lesson-iterating.html">next lesson in the Beginner AI track</a>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ 11. FOOTER ============ -->
+<footer class="site">
+  <div class="wrap">
+    <div class="crumbs">
+      <a href="#">Training Home</a><span>/</span><a href="#">Beginner AI Skills</a><span>/</span>Better Prompts, Safer AI
+    </div>
+    <div class="frow">
+      <div>Last updated: <strong id="lastUpdated">June 14, 2026</strong></div>
+      <div><a class="fb" href="#">Give feedback on this lesson &rarr;</a> <span style="opacity:.5">[Add link]</span></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   TOGGLES — flip these to turn sections on/off
+   ============================================================ */
+const SHOW_PRETEST  = false;   // baseline name/email + 5 questions, shown before content
+const SHOW_POSTTEST = true;    // 3-question assessment near the end
+/* ============================================================ */
+
+/* ---------- Question banks ---------- */
+const POSTTEST = [
+  { q:'You ask an AI "write something about our new product" and get generic filler. Which CRAFT element would help most?',
+    options:["None — the model just isn't good enough","Role and Format — tell it who to be and the exact shape you want","Just add the word 'please'","Send the same prompt again and hope"],
+    correct:1,
+    exp:"The prompt is vague across the board. Giving it a Role plus a concrete Format (and Context) turns generic filler into something usable. Resending the same vague prompt won't help." },
+  { q:"A coworker asks you to use a personal ChatGPT account to rewrite a patient email that includes the patient's full name, phone number, and account number. Best move?",
+    options:["Paste it as-is — it's just a rewrite","Remove the name, phone, and account number first (or use the approved tool), then rewrite","Replace the name with initials and paste the rest","Email it to yourself first, then paste"],
+    correct:1,
+    exp:"That's another person's personal/health info going into a public tool. Strip the identifying details and paste only the text to rewrite, or use an approved business tool. Initials still identify someone." },
+  { q:"The AI's first draft is close but too long and too formal. Best next step?",
+    options:["Start a brand-new chat and rewrite the prompt from scratch","Reply in the same chat: keep the content, make it shorter and less formal","Accept it — editing prompts is too much work","Switch to a different AI tool"],
+    correct:1,
+    exp:"Iterating in the same chat keeps all the context you already gave it. A follow-up like \"shorter and less formal, keep the rest\" is faster and better than starting over." }
+];
+
+const PRETEST = [
+  { q:"What does the 'R' in the CRAFT prompt structure stand for?",
+    options:["Result","Role","Request","Refine"], correct:1,
+    exp:"Role — telling the AI who to be (e.g. \"you are a patient-communications writer\") is the highest-leverage part of a prompt." },
+  { q:"Which is safest to paste into a free, personal AI chatbot?",
+    options:["A patient's medical history for a summary","A draft post about general wellness tips","Your login password","Unreleased company financials"], correct:1,
+    exp:"General, non-private content is fine. The other three all fail the \"would I post this publicly?\" test." },
+  { q:"Your first AI draft is close but not quite right. What's the better move?",
+    options:["Start a new chat from scratch","Reply in the same chat to refine it","Give up and write it yourself","Try a different AI tool"], correct:1,
+    exp:"Iterate in the same chat — a follow-up keeps the context you already provided." },
+  { q:"What's the best way to reference a real person in a public AI tool?",
+    options:["Use their full name","Use a placeholder like \"a patient\"","Use their initials and city","Paste their profile"], correct:1,
+    exp:"Placeholders keep the request just as useful while keeping private details out. Initials + a location can still identify someone." },
+  { q:"Which prompt is likely to produce a usable first draft?",
+    options:["\"write something good\"","\"help me\"","\"You are an editor. Rewrite this 80-word notice to be warmer, same length.\"","\"make it better\""], correct:2,
+    exp:"Only the third names a Role, Action, and Format — the others are too vague to produce a usable result." }
+];
+
+/* ---------- Generic quiz renderer ---------- */
+function renderQuiz(questions, mountId, scoreId, passMark, onComplete){
+  const box = document.getElementById(mountId);
+  const scoreEl = document.getElementById(scoreId);
+  box.innerHTML = '';
+  let answered = 0, correct = 0;
+  const total = questions.length;
+
+  questions.forEach((item, qi) => {
+    const d = document.createElement('div'); d.className = 'q';
+    const p = document.createElement('div'); p.className = 'qp';
+    p.textContent = (qi+1) + '. ' + item.q; d.appendChild(p);
+    item.options.forEach((opt, oi) => {
+      const b = document.createElement('button'); b.className = 'opt'; b.type = 'button'; b.textContent = opt;
+      b.onclick = () => {
+        if (d.dataset.done) return;
+        d.dataset.done = '1'; answered++;
+        const btns = d.querySelectorAll('.opt');
+        btns.forEach(x => x.disabled = true);
+        btns[item.correct].classList.add('correct');
+        if (oi === item.correct) correct++; else b.classList.add('wrong');
+        d.querySelector('.exp').classList.add('show');
+        if (answered === total){
+          const pct = Math.round(correct/total*100);
+          const pass = correct >= passMark;
+          scoreEl.className = 'scorebox show ' + (pass ? 'pass' : 'fail');
+          scoreEl.innerHTML =
+            '<span>' + (pass ? '✓ ' : '') + 'You scored ' + correct + '/' + total + ' (' + pct + '%)' +
+            (pass ? ' — passed.' : '. Review the explanations and retake.') + '</span>';
+          const rt = document.createElement('button'); rt.className = 'retake'; rt.textContent = 'Retake';
+          rt.onclick = () => { scoreEl.className = 'scorebox'; renderQuiz(questions, mountId, scoreId, passMark, onComplete); };
+          scoreEl.appendChild(rt);
+          if (onComplete) onComplete(correct, total, pct, pass);
+        }
+      };
+      d.appendChild(b);
+    });
+    const e = document.createElement('div'); e.className = 'exp'; e.textContent = item.exp; d.appendChild(e);
+    box.appendChild(d);
+  });
+}
+
+/* ---------- localStorage: completion + score ---------- */
+const LS_KEY = 'uperform-ai-prompting';
+function saveProgress(patch){
+  let data = {};
+  try { data = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e){}
+  Object.assign(data, patch);
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e){}
+  return data;
+}
+function loadProgress(){
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e){ return {}; }
+}
+function showCompletion(){
+  const data = loadProgress();
+  if (data.completed){
+    const banner = document.getElementById('doneBanner');
+    const txt = document.getElementById('doneText');
+    let msg = 'You completed this lesson.';
+    if (typeof data.posttestScore === 'number')
+      msg += ' Posttest: ' + data.posttestScore + '/' + (data.posttestTotal || 3) + '.';
+    if (data.completedAt) msg += ' (' + new Date(data.completedAt).toLocaleDateString() + ')';
+    txt.textContent = msg;
+    banner.classList.add('show');
+  }
+}
+
+/* ---------- Pretest ---------- */
+function startPretest(e){
+  e.preventDefault();
+  const name = document.getElementById('ptName').value.trim();
+  const email = document.getElementById('ptEmail').value.trim();
+  saveProgress({ ptName:name, ptEmail:email, pretestStartedAt:Date.now() });
+  document.getElementById('pretestCapture').style.display = 'none';
+  document.getElementById('pretestQuiz').style.display = 'block';
+  document.getElementById('pretestGreeting').textContent =
+    'Thanks, ' + (name || 'there') + ' — answer these five to set your baseline:';
+  renderQuiz(PRETEST, 'pretestQuestions', 'pretestScore', 0, (c,t) => {
+    saveProgress({ pretestScore:c, pretestTotal:t, pretestDoneAt:Date.now() });
+  });
+}
+
+/* ---------- Video ---------- */
+function playVideo(){
+  const v = document.querySelector('#videoBox video');
+  const cover = document.getElementById('videoCover');
+  const overlay = document.getElementById('playOverlay');
+  if (v){
+    overlay.style.display='none';
+    if (cover) cover.style.display='none';
+    const p = v.play();
+    if (p && p.catch){ p.catch(function(){ overlay.style.display='flex'; if (cover) cover.style.display='flex'; }); }
+  }
+}
+
+/* ---------- Prompt comparison cards ---------- */
+function togglePCard(card){ card.classList.toggle('open'); }
+
+/* ---------- Walkthrough accordion ---------- */
+function toggleAcc(head){ head.parentElement.classList.toggle('open'); }
+
+/* ---------- Print quick reference only ---------- */
+function printQuickRef(){ window.print(); }
+
+/* ---------- Sticky nav active state (scroll spy) ---------- */
+function initScrollSpy(){
+  const links = Array.from(document.querySelectorAll('nav.sticky a'));
+  const sections = links.map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function onScroll(){
+    const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 56;
+    let current = sections[0];
+    for (const s of sections){
+      if (s.getBoundingClientRect().top <= navH + 30) current = s;
+    }
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === (current && current.id)));
+  }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  // Pretest toggle
+  if (SHOW_PRETEST) document.getElementById('pretest').style.display = '';
+
+  // Posttest toggle
+  const postSection = document.getElementById('assessment');
+  if (SHOW_POSTTEST){
+    renderQuiz(POSTTEST, 'posttestQuestions', 'posttestScore', 2, (c,t,pct,pass) => {
+      saveProgress({ completed:true, completedAt:Date.now(), posttestScore:c, posttestTotal:t });
+      showCompletion();
+    });
+  } else {
+    postSection.style.display = 'none';
+    // remove the Assessment tab if posttest is off
+    const tab = document.querySelector('nav.sticky a[data-target="assessment"]');
+    if (tab) tab.remove();
+  }
+
+  showCompletion();
+  initScrollSpy();
+});
+</script>
+</body>
+</html>

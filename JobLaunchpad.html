@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JobLaunchpad — AI-Powered Career Assistant</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    /* ── IMPORTANT: Replace YOUR_API_KEY_HERE in the script below with your Anthropic API key ── */
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+// ── CONFIG: paste your Anthropic API key here ──────────────────────────────
+const ANTHROPIC_API_KEY = "YOUR_API_KEY_HERE";
+// ──────────────────────────────────────────────────────────────────────────
+
+const TABS = ["Profile", "Job Search", "Resume Builder", "Cover Letter", "Application Tracker"];
+const STATUS_OPTIONS = ["saved", "applied", "interview", "offer", "rejected"];
+const STATUS_COLORS = { saved:"#aaaacc", applied:"#47ffe8", interview:"#e8ff47", offer:"#47ff82", rejected:"#ff5c5c" };
+
+const STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c28; --border: #2a2a3a;
+    --accent: #e8ff47; --accent2: #47ffe8; --text: #f0f0f5; --muted: #7a7a9a; --danger: #ff5c5c;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+  .app { min-height: 100vh; background: var(--bg);
+    background-image: radial-gradient(ellipse at 20% 0%, rgba(232,255,71,0.07) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 100%, rgba(71,255,232,0.05) 0%, transparent 50%); }
+  .header { padding: 24px 40px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px;
+    backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.9); }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .tagline { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; margin-left: auto; }
+  .nav { padding: 0 40px; display: flex; gap: 4px; border-bottom: 1px solid var(--border); background: var(--surface); overflow-x: auto; }
+  .nav-tab { padding: 16px 20px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.03em;
+    color: var(--muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .nav-tab .badge { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--accent); color: #0a0a0f; font-size: 10px; font-weight: 800; margin-left: 6px; }
+  .main { padding: 40px; max-width: 1100px; margin: 0 auto; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .section-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; transition: border-color 0.2s; }
+  .card:hover { border-color: rgba(232,255,71,0.15); }
+  .card-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; display:inline-block; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  label { display: block; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+  input, textarea, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; resize: vertical; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.03em; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: var(--accent); color: #0a0a0f; }
+  .btn-primary:hover { background: #f5ff6e; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-teal { background: transparent; color: var(--accent2); border: 1px solid var(--accent2); }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(255,92,92,0.4); font-size: 12px; padding: 8px 14px; }
+  .btn-danger:hover { border-color: var(--danger); }
+  .btn-sm { padding: 8px 16px; font-size: 12px; }
+  .loading-bar { width: 100%; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 16px; }
+  .loading-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; animation: loadslide 1.5s ease-in-out infinite; width: 60%; }
+  @keyframes loadslide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+  .tag { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; }
+  .tag-x { cursor: pointer; color: var(--muted); }
+  .tag-x:hover { color: var(--danger); }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .alert-yellow { display: flex; align-items: flex-start; gap: 10px; padding: 14px 18px; background: rgba(232,255,71,0.08);
+    border: 1px solid rgba(232,255,71,0.2); border-radius: 10px; margin-bottom: 20px; font-size: 13px; }
+  .alert-teal { display: flex; align-items: flex-start; gap: 10px; padding: 14px 18px; background: rgba(71,255,232,0.06);
+    border: 1px solid rgba(71,255,232,0.2); border-radius: 10px; margin-bottom: 20px; font-size: 13px; }
+  .alert-red { padding: 14px 18px; background: rgba(255,92,92,0.06); border: 1px solid rgba(255,92,92,0.25); border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: var(--danger); }
+  .upload-zone { border: 2px dashed var(--border); border-radius: 14px; padding: 36px; text-align: center; transition: all 0.2s; background: var(--surface2); cursor: pointer; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(232,255,71,0.04); }
+  .upload-icon { font-size: 36px; margin-bottom: 12px; }
+  .upload-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .upload-sub { font-size: 12px; color: var(--muted); }
+  .how-to { background: var(--surface); border: 1px solid rgba(71,255,232,0.2); border-radius: 16px; padding: 24px 28px; margin-bottom: 24px; }
+  .how-to-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--accent2); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .step-list { display: flex; flex-direction: column; gap: 9px; }
+  .step-item { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; line-height: 1.5; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #0a0a0f; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { color: var(--muted); }
+  .step-text strong { color: var(--text); }
+  .job-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 12px;
+    transition: all 0.2s; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+  .job-card:hover { border-color: rgba(232,255,71,0.3); transform: translateY(-1px); }
+  .job-company { font-size: 11px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .job-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+  .job-title a { color: var(--text); text-decoration: none; transition: color 0.15s; }
+  .job-title a:hover { color: var(--accent); }
+  .job-meta { display: flex; gap: 14px; flex-wrap: wrap; }
+  .job-meta span { font-size: 12px; color: var(--muted); }
+  .job-meta .hi { color: var(--accent2); }
+  .match-pill { background: rgba(232,255,71,0.12); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .stats-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 28px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .tracker-table { width: 100%; border-collapse: collapse; }
+  .tracker-table th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; }
+  .tracker-table td { padding: 14px 16px; border-bottom: 1px solid rgba(42,42,58,0.5); font-size: 13px; vertical-align: middle; }
+  .tracker-table tr:last-child td { border-bottom: none; }
+  .tracker-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .status-select { padding: 5px 10px; font-size: 12px; border-radius: 20px; width: auto; min-width: 100px; }
+  .notes-input { background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: var(--muted); width: 100%; min-width: 120px; }
+  .notes-input:focus { border-color: var(--border); background: var(--surface2); color: var(--text); }
+  .quick-add { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .quick-add > div { flex: 1; min-width: 120px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal { background: #fff; color: #111; border-radius: 16px; width: 100%; max-width: 760px; max-height: 90vh; overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.5); }
+  .modal-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid #e5e5e5; background: #f8f8f8; border-radius: 16px 16px 0 0; position: sticky; top: 0; z-index: 10; }
+  .modal-toolbar-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: #111; }
+  .modal-actions { display: flex; gap: 8px; }
+  .modal-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer; border: none; transition: all 0.15s; }
+  .modal-btn-print { background: #111; color: #fff; }
+  .modal-btn-print:hover { background: #333; }
+  .modal-btn-copy { background: #f0f0f0; color: #111; border: 1px solid #ddd; }
+  .modal-btn-copy:hover { background: #e5e5e5; }
+  .modal-btn-close { background: transparent; color: #666; border: 1px solid #ddd; }
+  .modal-btn-close:hover { background: #f0f0f0; }
+  .modal-content { padding: 40px 48px; font-family: 'Georgia', serif; font-size: 14px; line-height: 1.8; color: #111; white-space: pre-wrap; }
+  .api-banner { padding: 14px 40px; background: rgba(255,92,92,0.08); border-bottom: 1px solid rgba(255,92,92,0.25); font-size: 13px; color: #ff5c5c; display: flex; align-items: center; gap: 10px; }
+  @media print {
+    .modal-toolbar { display: none !important; }
+    .modal { box-shadow: none; border-radius: 0; max-height: none; overflow: visible; }
+    .modal-content { padding: 20px; }
+    body > *:not(.modal-overlay) { display: none !important; }
+  }
+  @media (max-width: 700px) {
+    .main { padding: 20px; } .header { padding: 16px 20px; } .nav { padding: 0 20px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; } .stats-row { grid-template-columns: 1fr 1fr 1fr; }
+    .quick-add { flex-direction: column; }
+  }
+`;
+
+const MOCK_JOBS = [
+  { id:1, title:"Senior Product Designer", company:"Figma", location:"San Francisco, CA", type:"Full-time", salary:"$140k–$180k", posted:"2 days ago", match:94 },
+  { id:2, title:"UX Designer", company:"Airbnb", location:"Remote", type:"Full-time", salary:"$120k–$160k", posted:"1 day ago", match:88 },
+  { id:3, title:"Product Designer", company:"Stripe", location:"New York, NY", type:"Full-time", salary:"$130k–$170k", posted:"3 days ago", match:85 },
+];
+
+async function callClaude(system, user, maxTokens=1500) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":ANTHROPIC_API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:maxTokens, system, messages:[{role:"user",content:user}] })
+  });
+  const d = await r.json();
+  if (!d.content) throw new Error(JSON.stringify(d));
+  return d.content[0].text;
+}
+
+async function parseResumeText(text) {
+  const result = await callClaude(
+    `Extract resume info. Return ONLY valid JSON with keys: name,email,phone,location,title,industry,summary,experience,skills,education.
+experience = multi-line work history. skills = comma-separated. industry = inferred. Return ONLY the JSON, no fences.`,
+    `Parse:\n\n${text.slice(0,5000)}`
+  );
+  return JSON.parse(result.replace(/```json|```/g,"").trim());
+}
+
+function PrintModal({ title, content, onClose }) {
+  const [copied, setCopied] = useState(false);
+  const doCopy = () => { navigator.clipboard.writeText(content); setCopied(true); setTimeout(()=>setCopied(false),2000); };
+  useEffect(() => {
+    const h = (e) => { if (e.key==="Escape") onClose(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+  return (
+    <div className="modal-overlay" onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
+      <div className="modal">
+        <div className="modal-toolbar">
+          <div className="modal-toolbar-title">📄 {title}</div>
+          <div className="modal-actions">
+            <button className="modal-btn modal-btn-copy" onClick={doCopy}>{copied?"✓ Copied!":"Copy Text"}</button>
+            <button className="modal-btn modal-btn-print" onClick={()=>window.print()}>🖨 Print / Save PDF</button>
+            <button className="modal-btn modal-btn-close" onClick={onClose}>✕ Close</button>
+          </div>
+        </div>
+        <div className="modal-content">{content}</div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [activeTab, setActiveTab] = useState("Profile");
+  const [profile, setProfile] = useState({ name:"",email:"",phone:"",location:"",title:"",industry:"",summary:"",experience:"",skills:"",education:"" });
+  const [skillInput, setSkillInput] = useState("");
+  const [skillTags, setSkillTags] = useState([]);
+  const [pasteText, setPasteText] = useState("");
+  const [parsingResume, setParsingResume] = useState(false);
+  const [parseSuccess, setParseSuccess] = useState(false);
+  const [dragover, setDragover] = useState(false);
+  const fileRef = useRef();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
+  const [searchType, setSearchType] = useState("all");
+  const [searchResults, setSearchResults] = useState(null);
+  const [searching, setSearching] = useState(false);
+  const [targetJobTitle, setTargetJobTitle] = useState("");
+  const [targetCompany, setTargetCompany] = useState("");
+  const [targetJobDesc, setTargetJobDesc] = useState("");
+  const [resumeOutput, setResumeOutput] = useState("");
+  const [coverOutput, setCoverOutput] = useState("");
+  const [generatingResume, setGeneratingResume] = useState(false);
+  const [generatingCover, setGeneratingCover] = useState(false);
+  const [printDoc, setPrintDoc] = useState(null);
+  const [applications, setApplications] = useState([]);
+  const [newApp, setNewApp] = useState({ title:"",company:"",date:"",status:"applied",notes:"",url:"" });
+  const apiKeyMissing = ANTHROPIC_API_KEY === "YOUR_API_KEY_HERE";
+
+  // Persist applications to localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("joblaunchpad:applications");
+      if (saved) setApplications(JSON.parse(saved));
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem("joblaunchpad:applications", JSON.stringify(applications)); } catch {}
+  }, [applications]);
+
+  const profileFilled = profile.name && profile.title && profile.experience;
+  const up = (k,v) => setProfile(p=>({...p,[k]:v}));
+
+  const addSkillTag = (e) => {
+    if ((e.key==="Enter"||e.key===",") && skillInput.trim()) {
+      e.preventDefault();
+      const s = skillInput.trim().replace(/,$/,"");
+      if (s && !skillTags.includes(s)) setSkillTags(t=>[...t,s]);
+      setSkillInput("");
+    }
+  };
+
+  const applyParsed = (parsed) => {
+    setProfile({ name:parsed.name||"",email:parsed.email||"",phone:parsed.phone||"",location:parsed.location||"",
+      title:parsed.title||"",industry:parsed.industry||"",summary:parsed.summary||"",
+      experience:parsed.experience||"",skills:parsed.skills||"",education:parsed.education||"" });
+    if (parsed.skills) setSkillTags(parsed.skills.split(",").map(s=>s.trim()).filter(Boolean).slice(0,15));
+    setParseSuccess(true);
+    setTimeout(()=>setParseSuccess(false),5000);
+  };
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    setParsingResume(true); setParseSuccess(false);
+    try {
+      const fname = file.name.toLowerCase();
+      if (file.type==="application/pdf" || fname.endsWith(".pdf")) {
+        const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(",")[1]); r.onerror=rej; r.readAsDataURL(file); });
+        const response = await fetch("https://api.anthropic.com/v1/messages",{
+          method:"POST",
+          headers:{"Content-Type":"application/json","x-api-key":ANTHROPIC_API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+          body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1500,
+            messages:[{role:"user",content:[
+              {type:"document",source:{type:"base64",media_type:"application/pdf",data:base64}},
+              {type:"text",text:`Extract all resume info. Return ONLY valid JSON:
+{"name":"","email":"","phone":"","location":"","title":"","industry":"","summary":"","experience":"","skills":"","education":""}
+experience=multi-line work history, skills=comma-separated, industry=inferred. ONLY the JSON, no fences.`}
+            ]}]
+          })
+        });
+        const data = await response.json();
+        if (!data.content) throw new Error("no content");
+        applyParsed(JSON.parse(data.content[0].text.replace(/```json|```/g,"").trim()));
+      } else if (fname.endsWith(".docx")) {
+        alert("DOCX not supported in standalone HTML mode. Please use PDF or paste text below.");
+        setParsingResume(false); return;
+      } else {
+        const text = await file.text();
+        if (!text || text.length < 30) { alert("File seems empty. Paste resume text below."); setParsingResume(false); return; }
+        applyParsed(await parseResumeText(text));
+      }
+    } catch(err) {
+      console.error(err);
+      alert("Couldn't parse this file. Try PDF or paste your resume text below.");
+    }
+    setParsingResume(false);
+  };
+
+  const handlePaste = async () => {
+    if (!pasteText || pasteText.length < 30) return;
+    setParsingResume(true); setParseSuccess(false);
+    try { applyParsed(await parseResumeText(pasteText)); }
+    catch { alert("Couldn't parse. Fill in fields manually."); }
+    setParsingResume(false);
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    setSearching(true); setSearchResults(null);
+    try {
+      const raw = await callClaude(
+        `Generate realistic job listings. Return ONLY a JSON array of 6 objects:
+[{"id":1,"title":"","company":"","location":"","type":"","salary":"","posted":"","match":0}]
+- title: matches search query closely
+- company: real well-known company
+- location: real city or "Remote" (use location filter if given)
+- type: "Full-time"|"Contract"|"Part-time" (use type filter if given)
+- salary: realistic e.g. "$120k-$160k"
+- posted: "Today"|"1 day ago"|...|"5 days ago"
+- match: 70-99
+Return ONLY the raw JSON array, no markdown.`,
+        `Search: "${searchQuery}" | Location: "${searchLocation||"any"}" | Type: "${searchType}"`,
+        800
+      );
+      setSearchResults(JSON.parse(raw.replace(/```json|```/g,"").trim()).map((j,i)=>({...j,id:Date.now()+i})));
+    } catch {
+      setSearchResults(MOCK_JOBS);
+    }
+    setSearching(false);
+  };
+
+  const saveJob = (job, linkedinUrl) => {
+    if (applications.some(a=>a.title===job.title&&a.company===job.company)) {
+      setActiveTab("Application Tracker"); return;
+    }
+    setApplications(a=>[...a,{
+      id:Date.now(), title:job.title, company:job.company,
+      date:new Date().toISOString().split("T")[0],
+      status:"saved", notes:"", url:linkedinUrl,
+      salary:job.salary, type:job.type
+    }]);
+    setActiveTab("Application Tracker");
+  };
+
+  const generateResume = async () => {
+    if (!profileFilled) return;
+    setGeneratingResume(true); setResumeOutput("");
+    try {
+      const skills = [...skillTags,...profile.skills.split(",").map(s=>s.trim()).filter(Boolean)].join(", ");
+      const roleCtx = (targetJobTitle||targetCompany)
+        ? `\n\nTARGET ROLE:\nTitle: ${targetJobTitle}\nCompany: ${targetCompany}\nDescription:\n${targetJobDesc||"(not provided)"}`
+        : "";
+      const result = await callClaude(
+        `Expert resume writer. Create ATS-optimized resume in clean text with sections: CONTACT, SUMMARY, EXPERIENCE, SKILLS, EDUCATION.${targetJobTitle?" Mirror keywords and phrasing from the job description wherever truthfully applicable.":""}`,
+        `${profile.name} | ${profile.title} | ${profile.email} | ${profile.phone} | ${profile.location}\nIndustry: ${profile.industry}\n\nSUMMARY:\n${profile.summary}\n\nEXPERIENCE:\n${profile.experience}\n\nSKILLS:\n${skills}\n\nEDUCATION:\n${profile.education}${roleCtx}`,
+        2000
+      );
+      setResumeOutput(result);
+    } catch(e) { setResumeOutput("Error generating. Check your API key and try again.\n\n" + e.message); }
+    setGeneratingResume(false);
+  };
+
+  const generateCover = async () => {
+    if (!profileFilled||!targetCompany||!targetJobTitle) return;
+    setGeneratingCover(true); setCoverOutput("");
+    try {
+      const skills = [...skillTags,...profile.skills.split(",").map(s=>s.trim()).filter(Boolean)].join(", ");
+      const result = await callClaude(
+        "Expert career coach. Write a compelling, warm, personalized cover letter. No clichés. 3-4 paragraphs.",
+        `${profile.name} → ${targetJobTitle} at ${targetCompany}\nBackground: ${profile.title}, ${profile.industry}\nExperience: ${profile.experience}\nSkills: ${skills}\nSummary: ${profile.summary}\nJob description: ${targetJobDesc||"(general)"}`,
+        1200
+      );
+      setCoverOutput(result);
+    } catch(e) { setCoverOutput("Error generating. Check your API key and try again."); }
+    setGeneratingCover(false);
+  };
+
+  const updateApp = (id, updates) => setApplications(a=>a.map(x=>x.id===id?{...x,...updates}:x));
+  const removeApp = (id) => setApplications(a=>a.filter(x=>x.id!==id));
+  const addApp = () => {
+    if (!newApp.title||!newApp.company) return;
+    setApplications(a=>[...a,{...newApp,id:Date.now(),date:newApp.date||new Date().toISOString().split("T")[0]}]);
+    setNewApp({title:"",company:"",date:"",status:"applied",notes:"",url:""});
+  };
+
+  const counts = STATUS_OPTIONS.reduce((acc,s)=>{acc[s]=applications.filter(a=>a.status===s).length;return acc;},{});
+
+  return (
+    <>
+      <style>{STYLES}</style>
+      {printDoc && <PrintModal title={printDoc.title} content={printDoc.content} onClose={()=>setPrintDoc(null)} />}
+      <div className="app">
+        <header className="header">
+          <div className="logo">Job<span>Launchpad</span></div>
+          <div className="tagline">AI-Powered Career Assistant</div>
+        </header>
+        {apiKeyMissing && (
+          <div className="api-banner">
+            ⚠ No API key set — open JobLaunchpad.html in a text editor and replace <strong>YOUR_API_KEY_HERE</strong> with your Anthropic API key to enable AI features.
+          </div>
+        )}
+        <nav className="nav">
+          {TABS.map(t=>(
+            <button key={t} className={`nav-tab ${activeTab===t?"active":""}`} onClick={()=>setActiveTab(t)}>
+              {t}
+              {t==="Application Tracker" && applications.length>0 && <span className="badge">{applications.length}</span>}
+            </button>
+          ))}
+        </nav>
+
+        <main className="main">
+
+          {activeTab==="Profile" && <>
+            <div className="section-title">Your Profile</div>
+            <p className="section-sub">Upload your resume to auto-fill, or fill in manually. Everything else is powered from here.</p>
+            <div className="how-to">
+              <div className="how-to-title">How it works</div>
+              <div className="step-list">
+                {[["Profile","Upload your resume or fill in manually — do this once."],
+                  ["Job Search","Find roles, click titles to view on LinkedIn, save to track."],
+                  ["Resume Builder","Enter target role + paste job description → get an ATS-tailored resume you can print."],
+                  ["Cover Letter","Same target role info auto-carries over → one-click personalized letter, ready to print."],
+                  ["Application Tracker","All saved jobs live here. Update status as you progress. Persists across sessions."]
+                ].map(([t,d],i)=>(
+                  <div key={i} className="step-item">
+                    <div className="step-num">{i+1}</div>
+                    <div className="step-text"><strong>{t}</strong> — {d}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {parseSuccess && <div className="alert-yellow">✦ Resume parsed! Review and edit the fields below before generating documents.</div>}
+            {profileFilled && !parseSuccess && <div className="alert-yellow">✦ Profile ready — go to Resume Builder to get started.</div>}
+            <div className="card">
+              <div className="card-title"><span className="dot" style={{background:"var(--accent2)"}}/>Upload Resume to Auto-Fill</div>
+              <div className={`upload-zone ${dragover?"drag":""}`}
+                onDragOver={e=>{e.preventDefault();setDragover(true);}}
+                onDragLeave={()=>setDragover(false)}
+                onDrop={e=>{e.preventDefault();setDragover(false);handleFile(e.dataTransfer.files[0]);}}
+                onClick={()=>fileRef.current?.click()}>
+                <input ref={fileRef} type="file" accept=".pdf,.txt" style={{display:"none"}} onChange={e=>handleFile(e.target.files[0])}/>
+                <div className="upload-icon">{parsingResume?"⟳":"📄"}</div>
+                <div className="upload-title">{parsingResume?"Parsing your resume…":"Drop resume here or click to upload"}</div>
+                <div className="upload-sub">PDF or .txt · Drag & drop or click to browse</div>
+                {parsingResume && <div className="loading-bar" style={{marginTop:14,maxWidth:300,margin:"14px auto 0"}}><div className="loading-bar-inner"/></div>}
+              </div>
+              <hr className="divider"/>
+              <label>Or paste resume text here</label>
+              <textarea rows={5} value={pasteText} onChange={e=>setPasteText(e.target.value)} placeholder="Copy and paste your full resume text, then click Parse…" style={{marginBottom:12}}/>
+              <button className="btn btn-secondary" disabled={parsingResume||pasteText.length<30} onClick={handlePaste}>
+                {parsingResume?"⟳ Parsing…":"✦ Parse & Auto-Fill Profile"}
+              </button>
+            </div>
+            <div className="card">
+              <div className="card-title"><span className="dot"/>Personal Info</div>
+              <div className="grid-2">
+                {[["name","Full Name","Alex Johnson"],["title","Professional Title","Senior Product Designer"],
+                  ["email","Email","alex@email.com"],["phone","Phone","+1 (555) 000-0000"],
+                  ["location","Location","San Francisco, CA"],["industry","Target Industry","Tech / SaaS / Design"]
+                ].map(([k,l,p])=><div key={k}><label>{l}</label><input value={profile[k]} onChange={e=>up(k,e.target.value)} placeholder={p}/></div>)}
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-title"><span className="dot" style={{background:"var(--accent2)"}}/>Professional Summary</div>
+              <textarea rows={3} value={profile.summary} onChange={e=>up("summary",e.target.value)} placeholder="Results-driven professional with X years of experience…"/>
+            </div>
+            <div className="card">
+              <div className="card-title"><span className="dot"/>Work Experience</div>
+              <textarea rows={7} value={profile.experience} onChange={e=>up("experience",e.target.value)} placeholder={"Senior Designer @ Acme Corp (2022–Present)\n- Led redesign increasing engagement 34%\n\nUX Designer @ StartupXYZ (2019–2022)\n- Built onboarding flow reducing drop-off 28%"}/>
+            </div>
+            <div className="card">
+              <div className="card-title"><span className="dot" style={{background:"#ff9f47"}}/>Skills</div>
+              <label>Type a skill and press Enter</label>
+              <input value={skillInput} onChange={e=>setSkillInput(e.target.value)} onKeyDown={addSkillTag} placeholder="Figma, React, User Research…"/>
+              <div className="tags">
+                {skillTags.map(s=><span key={s} className="tag">{s} <span className="tag-x" onClick={()=>setSkillTags(t=>t.filter(x=>x!==s))}>×</span></span>)}
+              </div>
+              <hr className="divider"/>
+              <label>Or paste comma-separated</label>
+              <input value={profile.skills} onChange={e=>up("skills",e.target.value)} placeholder="Figma, Sketch, HTML/CSS, React…"/>
+            </div>
+            <div className="card">
+              <div className="card-title"><span className="dot" style={{background:"var(--accent2)"}}/>Education</div>
+              <textarea rows={3} value={profile.education} onChange={e=>up("education",e.target.value)} placeholder={"B.S. Design, UC Berkeley (2019)\nMinor in Computer Science"}/>
+            </div>
+          </>}
+
+          {activeTab==="Job Search" && <>
+            <div className="section-title">Find Jobs</div>
+            <p className="section-sub">Search for roles — click titles to view on LinkedIn, save to track them.</p>
+            <div className="card">
+              <div className="grid-3" style={{marginBottom:16}}>
+                <div><label>Keywords</label><input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="Product Designer…" onKeyDown={e=>e.key==="Enter"&&handleSearch()}/></div>
+                <div><label>Location</label><input value={searchLocation} onChange={e=>setSearchLocation(e.target.value)} placeholder="Remote, NYC…" onKeyDown={e=>e.key==="Enter"&&handleSearch()}/></div>
+                <div><label>Type</label>
+                  <select value={searchType} onChange={e=>setSearchType(e.target.value)}>
+                    <option value="all">All Types</option>
+                    <option value="full-time">Full-time</option>
+                    <option value="contract">Contract</option>
+                    <option value="part-time">Part-time</option>
+                  </select>
+                </div>
+              </div>
+              <button className="btn btn-primary" onClick={handleSearch} disabled={searching||!searchQuery.trim()}>
+                {searching?"Searching…":"⌕  Search Jobs"}
+              </button>
+              {searching && <div className="loading-bar"><div className="loading-bar-inner"/></div>}
+            </div>
+            {searchResults?.map(job=>{
+              const linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title+" "+job.company)}&location=${encodeURIComponent(job.location||"")}`;
+              const alreadySaved = applications.some(a=>a.title===job.title&&a.company===job.company);
+              return (
+                <div key={job.id} className="job-card">
+                  <div>
+                    <div className="job-company">{job.company}</div>
+                    <div className="job-title"><a href={linkedinUrl} target="_blank" rel="noopener noreferrer">{job.title} ↗</a></div>
+                    <div className="job-meta">
+                      <span>📍 {job.location}</span>
+                      <span>💼 {job.type}</span>
+                      <span className="hi">💰 {job.salary}</span>
+                      <span>🕐 {job.posted}</span>
+                    </div>
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:10}}>
+                    <div className="match-pill">{job.match}% match</div>
+                    {alreadySaved
+                      ? <button className="btn btn-teal btn-sm" onClick={()=>setActiveTab("Application Tracker")}>✓ Saved — View →</button>
+                      : <button className="btn btn-primary btn-sm" onClick={()=>saveJob(job,linkedinUrl)}>+ Save & Track</button>
+                    }
+                  </div>
+                </div>
+              );
+            })}
+            {!searchResults && (
+              <div style={{textAlign:"center",padding:"60px 0",color:"var(--muted)"}}>
+                <div style={{fontSize:48,marginBottom:16}}>⌕</div>
+                <div style={{fontFamily:"'Syne',sans-serif",fontSize:18,fontWeight:700,marginBottom:8}}>Search to discover opportunities</div>
+                <div style={{fontSize:13}}>Enter keywords above — titles link directly to LinkedIn</div>
+              </div>
+            )}
+          </>}
+
+          {activeTab==="Resume Builder" && <>
+            <div className="section-title">Resume Builder</div>
+            <p className="section-sub">Enter your target role, then generate a tailored ATS-optimized resume — ready to print or save as PDF.</p>
+            {!profileFilled && <div className="alert-red">⚠ Fill out your Profile first — name, title, and experience are required.</div>}
+            <div className="card">
+              <div className="card-title"><span className="dot" style={{background:"var(--accent2)"}}/>Target Role <span style={{fontSize:12,fontWeight:400,color:"var(--muted)",marginLeft:6}}>— shared with Cover Letter</span></div>
+              <div className="grid-2" style={{marginBottom:16}}>
+                <div><label>Job Title</label><input value={targetJobTitle} onChange={e=>setTargetJobTitle(e.target.value)} placeholder="Senior Product Designer"/></div>
+                <div><label>Company</label><input value={targetCompany} onChange={e=>setTargetCompany(e.target.value)} placeholder="Figma"/></div>
+              </div>
+              <label>Job Description <span style={{color:"var(--muted)",textTransform:"none",fontSize:11,letterSpacing:0}}>(paste for ATS keyword matching — highly recommended)</span></label>
+              <textarea rows={5} value={targetJobDesc} onChange={e=>setTargetJobDesc(e.target.value)} placeholder="Paste the full job description here…"/>
+            </div>
+            <div className="card">
+              <div className="card-title"><span className="dot"/>Generate Resume</div>
+              <p style={{fontSize:13,color:"var(--muted)",marginBottom:20}}>
+                {targetJobTitle ? `Tailoring for ${targetJobTitle}${targetCompany?" at "+targetCompany:""}` : "No target role set — will generate a general resume."}
+              </p>
+              <button className="btn btn-primary" onClick={generateResume} disabled={!profileFilled||generatingResume}>
+                {generatingResume?"⟳  Generating…":"✦  Generate Resume"}
+              </button>
+              {generatingResume && <div className="loading-bar"><div className="loading-bar-inner"/></div>}
+              {resumeOutput && <>
+                <div style={{display:"flex",gap:10,marginTop:20,flexWrap:"wrap"}}>
+                  <button className="btn btn-primary" onClick={()=>setPrintDoc({title:"Resume",content:resumeOutput})}>🖨 Print / Save PDF</button>
+                  <button className="btn btn-secondary" onClick={()=>navigator.clipboard.writeText(resumeOutput)}>Copy Text</button>
+                </div>
+                <div style={{background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:12,padding:24,marginTop:16,whiteSpace:"pre-wrap",fontSize:13,lineHeight:1.8,maxHeight:400,overflowY:"auto"}}>
+                  {resumeOutput}
+                </div>
+              </>}
+            </div>
+          </>}
+
+          {activeTab==="Cover Letter" && <>
+            <div className="section-title">Cover Letter</div>
+            <p className="section-sub">Uses the Target Role you set in Resume Builder — update it there and it applies here too.</p>
+            {!profileFilled && <div className="alert-red">⚠ Fill out your Profile first.</div>}
+            {(!targetJobTitle||!targetCompany)
+              ? <div className="alert-yellow">
+                  💡 Set your <strong style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>setActiveTab("Resume Builder")}>Target Role in Resume Builder</strong> first.
+                </div>
+              : <div className="alert-teal">
+                  <div>
+                    <div style={{fontSize:11,color:"var(--muted)",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>Target Role</div>
+                    <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:16}}>{targetJobTitle} <span style={{color:"var(--muted)",fontWeight:400}}>at {targetCompany}</span></div>
+                    {targetJobDesc && <div style={{fontSize:12,color:"var(--muted)",marginTop:4}}>{targetJobDesc.slice(0,120)}{targetJobDesc.length>120?"…":""}</div>}
+                    <button className="btn btn-secondary btn-sm" style={{marginTop:10}} onClick={()=>setActiveTab("Resume Builder")}>Edit →</button>
+                  </div>
+                </div>
+            }
+            <div className="card">
+              <div className="card-title"><span className="dot"/>Generate Cover Letter</div>
+              <button className="btn btn-primary" onClick={generateCover} disabled={!profileFilled||!targetCompany||!targetJobTitle||generatingCover}>
+                {generatingCover?"⟳  Writing…":"✦  Generate Cover Letter"}
+              </button>
+              {generatingCover && <div className="loading-bar"><div className="loading-bar-inner"/></div>}
+              {coverOutput && <>
+                <div style={{display:"flex",gap:10,marginTop:20,flexWrap:"wrap"}}>
+                  <button className="btn btn-primary" onClick={()=>setPrintDoc({title:"Cover Letter",content:coverOutput})}>🖨 Print / Save PDF</button>
+                  <button className="btn btn-secondary" onClick={()=>navigator.clipboard.writeText(coverOutput)}>Copy Text</button>
+                </div>
+                <div style={{background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:12,padding:24,marginTop:16,whiteSpace:"pre-wrap",fontSize:13,lineHeight:1.8,maxHeight:400,overflowY:"auto"}}>
+                  {coverOutput}
+                </div>
+              </>}
+            </div>
+          </>}
+
+          {activeTab==="Application Tracker" && <>
+            <div className="section-title">Application Tracker</div>
+            <p className="section-sub">Saved jobs appear here automatically. Update statuses as you progress — everything persists between sessions.</p>
+            <div className="stats-row">
+              {[["Total",applications.length,"var(--accent)"],
+                ...STATUS_OPTIONS.map(s=>[s.charAt(0).toUpperCase()+s.slice(1),counts[s],STATUS_COLORS[s]])
+              ].map(([label,count,color])=>(
+                <div key={label} className="stat-card">
+                  <div className="stat-num" style={{color}}>{count}</div>
+                  <div className="stat-label">{label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="card">
+              <div className="card-title"><span className="dot"/>Add Manually</div>
+              <div className="quick-add">
+                <div><label>Job Title</label><input value={newApp.title} onChange={e=>setNewApp(a=>({...a,title:e.target.value}))} placeholder="Product Designer" onKeyDown={e=>e.key==="Enter"&&addApp()}/></div>
+                <div><label>Company</label><input value={newApp.company} onChange={e=>setNewApp(a=>({...a,company:e.target.value}))} placeholder="Stripe" onKeyDown={e=>e.key==="Enter"&&addApp()}/></div>
+                <div style={{maxWidth:150}}><label>Status</label>
+                  <select value={newApp.status} onChange={e=>setNewApp(a=>({...a,status:e.target.value}))}>
+                    {STATUS_OPTIONS.map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
+                  </select>
+                </div>
+                <div style={{maxWidth:170}}><label>Date</label><input type="date" value={newApp.date} onChange={e=>setNewApp(a=>({...a,date:e.target.value}))}/></div>
+                <div style={{paddingTop:22}}><button className="btn btn-primary" onClick={addApp} disabled={!newApp.title||!newApp.company}>+ Add</button></div>
+              </div>
+            </div>
+            {applications.length > 0 ? (
+              <div className="card" style={{padding:0,overflow:"hidden"}}>
+                <table className="tracker-table">
+                  <thead>
+                    <tr><th>Role</th><th>Company</th><th>Date</th><th>Status</th><th>Notes</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    {applications.map(app=>(
+                      <tr key={app.id}>
+                        <td style={{fontWeight:600}}>
+                          {app.url
+                            ? <a href={app.url} target="_blank" rel="noopener noreferrer" style={{color:"var(--text)",textDecoration:"none"}}
+                                onMouseEnter={e=>e.currentTarget.style.color="var(--accent)"}
+                                onMouseLeave={e=>e.currentTarget.style.color="var(--text)"}>{app.title} ↗</a>
+                            : app.title}
+                        </td>
+                        <td style={{color:"var(--muted)"}}>{app.company}</td>
+                        <td style={{color:"var(--muted)",fontSize:12,whiteSpace:"nowrap"}}>{app.date||"—"}</td>
+                        <td>
+                          <select className="status-select" value={app.status}
+                            onChange={e=>updateApp(app.id,{status:e.target.value})}
+                            style={{color:STATUS_COLORS[app.status]||"var(--text)"}}>
+                            {STATUS_OPTIONS.map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
+                          </select>
+                        </td>
+                        <td><input className="notes-input" value={app.notes||""} onChange={e=>updateApp(app.id,{notes:e.target.value})} placeholder="Add notes…"/></td>
+                        <td><button className="btn btn-danger" onClick={()=>removeApp(app.id)}>✕</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{textAlign:"center",padding:"48px 0",color:"var(--muted)"}}>
+                <div style={{fontSize:36,marginBottom:12}}>📋</div>
+                <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,marginBottom:6}}>No applications yet</div>
+                <div style={{fontSize:13}}>Save jobs from Job Search, or add them manually above</div>
+              </div>
+            )}
+          </>}
+
+        </main>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

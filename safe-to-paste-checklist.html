@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's Safe to Paste · Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0d1b3e;--navy-light:#1e3a6e;--navy-pale:#e8edf6;
+    --off:#f6f8fc;--white:#fff;--line:#dce3f0;
+    --text:#0a0c10;--text-mid:#414a5e;--text-light:#7a849a;
+    --ok-bg:#eef7f0;--ok-line:#bcdcc4;--ok-ink:#1d5a30;
+    --bad-bg:#fdf2f2;--bad-line:#f0cccc;--bad-ink:#a13232;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Instrument Sans',sans-serif;color:var(--text);background:var(--off);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px}
+  a{color:var(--navy)}
+  header.hero{background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;padding:40px 0 34px}
+  .breadcrumb{font-size:.82rem;color:#aebbd9;margin-bottom:16px}
+  .breadcrumb a{color:#cdd9f5;text-decoration:none}
+  .breadcrumb a:hover{text-decoration:underline}
+  .breadcrumb span{margin:0 7px;color:#5f73a3}
+  .badge{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;background:rgba(255,255,255,.14);padding:6px 12px;border-radius:30px;margin-bottom:14px}
+  header.hero h1{font-family:'Playfair Display',serif;font-weight:700;font-size:2.1rem;line-height:1.12}
+  header.hero h1 em{font-style:italic;color:#bcd0ff}
+  header.hero p{color:#d6deef;margin-top:10px;max-width:60ch}
+  main{padding:30px 0 70px}
+  section.block{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px 30px;margin-bottom:20px;box-shadow:0 1px 3px rgba(13,27,62,.04)}
+  .qr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+  .print-btn{flex-shrink:0;font-size:.82rem;font-weight:500;border:1px solid var(--navy-light);background:#fff;color:var(--navy);border-radius:8px;padding:8px 15px;cursor:pointer}
+  .print-btn:hover{background:var(--navy-pale)}
+  .tag{display:inline-block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--navy);background:var(--navy-pale);padding:5px 11px;border-radius:6px;margin-bottom:14px}
+  h2{font-family:'Playfair Display',serif;font-weight:700;font-size:1.5rem;color:var(--navy);margin-bottom:8px}
+  h3{font-family:'Playfair Display',serif;font-weight:600;font-size:1.1rem;color:var(--navy);margin:16px 0 6px}
+  p{margin-bottom:12px;color:var(--text-mid)}
+  .testline{font-family:'Playfair Display',serif;font-style:italic;font-size:1.3rem;color:var(--navy);border-left:3px solid var(--navy);padding:6px 0 6px 20px;margin:6px 0 4px;line-height:1.35}
+  .never{background:var(--bad-bg);border:1px solid var(--bad-line);border-left:5px solid #c0392b;border-radius:10px;padding:16px 20px}
+  .never h2{color:var(--bad-ink);font-size:1.2rem}
+  .never ul{list-style:none;margin-top:6px}
+  .never li{position:relative;padding:6px 0 6px 26px;color:#7a2727;font-size:.96rem}
+  .never li::before{content:"\2717";position:absolute;left:0;top:6px;font-weight:700}
+  .safe ul{list-style:none;margin-top:6px}
+  .safe li{position:relative;padding:7px 0 7px 26px;color:var(--text-mid);font-size:.96rem;border-bottom:1px solid var(--line)}
+  .safe li:last-child{border-bottom:none}
+  .safe li::before{content:"\2713";position:absolute;left:0;top:7px;color:var(--ok-ink);font-weight:700}
+  .safe li b{color:var(--text)}
+  footer.site{background:var(--navy);color:#cdd9f5;padding:26px 0;font-size:.86rem}
+  footer.site a{color:#bcd0ff}
+  @media print{body{background:#fff}header.hero,footer.site,.print-btn,.breadcrumb{display:none}section.block{border:none;box-shadow:none;padding:0;margin-bottom:24px}@page{margin:.6in}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="ai-prompting-lesson.html">Better Prompts, Safer AI</a><span>/</span>Job Aid</div>
+    <span class="badge">Job Aid</span>
+    <h1>"What's Safe to Paste" <em>Checklist</em></h1>
+    <p>One rule, one do-not-paste list, three habits. Print it and keep it by your screen.</p>
+  </div>
+</header>
+<main class="wrap">
+  <section class="block">
+    <div class="qr-head">
+      <div><div class="tag">The One-Line Test</div><h2>Treat a public AI tool like a public postcard</h2></div>
+      <button class="print-btn" onclick="window.print()">&#128424; Print</button>
+    </div>
+    <p>Free and personal chatbots may use what you type, and you don't control where it goes. So before you paste, run one test:</p>
+    <p class="testline">If you wouldn't post it on a public bulletin board, don't paste it in.</p>
+  </section>
+
+  <section class="block never">
+    <h2>Never paste these into a public / personal tool</h2>
+    <ul>
+      <li>Passwords and login codes</li>
+      <li>Full Social Security or financial account numbers</li>
+      <li>Other people's personal details &mdash; names, contact info, health information</li>
+      <li>Confidential company, client, or patient information</li>
+    </ul>
+  </section>
+
+  <section class="block safe">
+    <div class="tag">Three Habits</div>
+    <h2>Stay safe without slowing down</h2>
+    <ul>
+      <li><b>Swap in placeholders.</b> "A patient," "Company X," "my coworker" instead of real names and numbers &mdash; the AI doesn't need the real ones to help.</li>
+      <li><b>Strip before you paste.</b> Rewriting an email? Drop the signature, phone numbers, and account IDs first &mdash; paste only the part you need rewritten.</li>
+      <li><b>Use the approved tool for sensitive work.</b> A provided business AI account has different data protections than a personal login.</li>
+    </ul>
+  </section>
+</main>
+<footer class="site">
+  <div class="wrap"><a href="ai-prompting-lesson.html">&larr; Back to the lesson</a></div>
+</footer>
+</body>
+</html>

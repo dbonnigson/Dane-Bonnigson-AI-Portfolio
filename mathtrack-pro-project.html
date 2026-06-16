@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathTrack Pro — AI Circles Project Submission</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --card: #1a2236;
+    --border: #2a3a5c;
+    --accent: #4f8ef7;
+    --green: #22d3a0;
+    --yellow: #f5c842;
+    --red: #f75b5b;
+    --purple: #a78bfa;
+    --text: #e8edf7;
+    --muted: #6b7fa3;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+  }
+  .nav-brand { font-size: 14px; font-weight: 800; color: var(--accent); letter-spacing: 1px; }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* LAYOUT */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 32px; }
+
+  /* HERO */
+  .hero {
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 600px;
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+  .badge-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid;
+  }
+  .badge-blue { background: #4f8ef715; color: var(--accent); border-color: #4f8ef744; }
+  .badge-green { background: #22d3a015; color: var(--green); border-color: #22d3a044; }
+  .badge-purple { background: #a78bfa15; color: var(--purple); border-color: #a78bfa44; }
+  .badge-yellow { background: #f5c84215; color: var(--yellow); border-color: #f5c84244; }
+
+  /* SECTIONS */
+  .section { padding: 60px 0; border-bottom: 1px solid var(--border)22; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .section h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  p { color: var(--muted); font-size: 14px; line-height: 1.8; margin-bottom: 16px; }
+  p strong { color: var(--text); }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card p { margin-bottom: 0; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  /* STAT CARDS */
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .stat-val { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+  .stat-card .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .stat-card .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* WEEK BADGE */
+  .week-card {
+    background: var(--accent);
+    border-radius: 14px;
+    padding: 24px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .week-num { font-size: 48px; font-weight: 800; opacity: 0.3; line-height: 1; }
+  .week-title { font-size: 18px; font-weight: 700; }
+  .week-sub { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+
+  /* TOOLS */
+  .tool-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 4px;
+  }
+  .tool-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* SCREENSHOT PANELS */
+  .screenshot-item { margin-bottom: 40px; }
+  .screenshot-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .screenshot-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .screenshot-desc { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .screenshot-frame {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .screenshot-frame svg { display: block; width: 100%; }
+
+  /* HOW IT WORKS */
+  .step {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .step-content p { margin-bottom: 0; font-size: 13px; }
+
+  /* QUOTE BOX */
+  .quote-box {
+    background: var(--accent);
+    border-radius: 14px;
+    padding: 28px 32px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.6;
+    position: relative;
+  }
+  .quote-box::before { content: '"'; font-size: 60px; opacity: 0.2; position: absolute; top: 8px; left: 20px; line-height: 1; }
+
+  /* AGENTIC IDEAS */
+  .idea-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .idea-card .idea-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); font-weight: 500; letter-spacing: 2px; margin-bottom: 8px; }
+  .idea-card h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .idea-card p { font-size: 12px; margin-bottom: 0; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* FOOTER */
+  footer {
+    padding: 40px 0;
+    text-align: center;
+  }
+  footer p { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+
+  @media (max-width: 640px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 32px; }
+    nav { padding: 12px 20px; }
+    .nav-links { gap: 14px; }
+    .container { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">MATHTRACK PRO</div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#screenshots">Screenshots</a></li>
+    <li><a href="#impact">Impact</a></li>
+    <li><a href="#next">Next Steps</a></li>
+    <li><a href="#agentic">Agentic AI</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <section class="hero" id="overview">
+    <div class="hero-eyebrow">AI Circles · Week 1 · Project Submission</div>
+    <h1>MathTrack Pro</h1>
+    <p class="hero-sub">
+      A full-stack teacher dashboard that generates shareable math assessments, auto-grades student submissions using AI, and tracks individual student growth over time — replacing manual Math Improvement and Monitoring Plans (MIMPs) with automated, objective progress data.
+    </p>
+    <div class="badge-row">
+      <span class="badge badge-blue">Week 1 — Custom GPTs, RAG &amp; Memory</span>
+      <span class="badge badge-green">Claude</span>
+      <span class="badge badge-green">React</span>
+      <span class="badge badge-purple">AI-Powered Grading</span>
+      <span class="badge badge-yellow">K–12 Math</span>
+    </div>
+  </section>
+
+  <!-- CONTEXT -->
+  <section class="section">
+    <div class="section-label">Context</div>
+    <h2>The Problem This Solves</h2>
+    <div class="quote-box">
+      Ohio Senate Bill 19 would require Math Improvement and Monitoring Plans (MIMPs) for struggling students — adding significant paperwork burden to already-overworked teachers. MathTrack Pro replaces that manual administrative load with a real-time, AI-powered dashboard.
+    </div>
+    <div style="height: 24px;"></div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Without MathTrack Pro</h3>
+        <p>Teachers manually track assessment scores in spreadsheets, write individual progress notes, and compile year-end reports by hand. With 25–30 students, this costs <strong>3–5 hours per week</strong> in administrative overhead — time taken away from actual teaching.</p>
+      </div>
+      <div class="card">
+        <h3>With MathTrack Pro</h3>
+        <p>Assessments are auto-graded the moment students submit. Progress is tracked automatically across every period. Feedback and year-end reports are generated in one click. Teachers spend that reclaimed time on <strong>actual instruction and intervention</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WEEK -->
+  <section class="section">
+    <div class="section-label">Associated Week</div>
+    <h2>Week 1 — Custom GPTs, RAG &amp; Memory</h2>
+    <div class="week-card">
+      <div class="week-num">1</div>
+      <div>
+        <div class="week-title">Custom GPTs, RAG &amp; Memory</div>
+        <div class="week-sub">Facilitators: Vidhatri · 1 spot left at submission time</div>
+      </div>
+    </div>
+    <div style="height: 20px;"></div>
+    <p>MathTrack Pro applies the core concepts of Week 1 by using Claude as a custom AI backbone that stores student performance data across sessions (Memory), retrieves relevant historical score records when generating reports (RAG), and operates as a purpose-built domain-specific assistant (Custom GPT) tuned specifically for math classroom management and progress monitoring.</p>
+  </section>
+
+  <!-- TOOLS -->
+  <section class="section">
+    <div class="section-label">Tools Used</div>
+    <h2>Tech Stack</h2>
+    <div>
+      <span class="tool-pill"><span class="tool-dot" style="background:#22d3a0"></span>Claude</span>
+      <span class="tool-pill"><span class="tool-dot" style="background:#4f8ef7"></span>React</span>
+      <span class="tool-pill"><span class="tool-dot" style="background:#f5c842"></span>Bolt</span>
+      <span class="tool-pill"><span class="tool-dot" style="background:#a78bfa"></span>Anthropic API</span>
+      <span class="tool-pill"><span class="tool-dot" style="background:#f75b5b"></span>Cloudflare Pages</span>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="section">
+    <div class="section-label">Summary</div>
+    <h2>What It Is &amp; Who It's For</h2>
+    <p>MathTrack Pro is built for <strong>K–12 math teachers</strong> who struggle to track student growth and manage assessment data efficiently. It solves the problem of scattered paperwork and manual progress monitoring by providing a single interactive dashboard where teachers can share assessments, auto-grade student submissions, and visualize individual and class-wide growth over time.</p>
+    <p>It directly addresses the kind of administrative burden that bills like <strong>Ohio SB 19</strong> aim to reduce — replacing manual Math Improvement and Monitoring Plans (MIMPs) with automated, data-driven tracking that surfaces exactly the same insights lawmakers want, without the paperwork cost to educators.</p>
+    <div class="grid-4" style="margin-top: 24px;">
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--accent)">10</div>
+        <div class="stat-label">Students</div>
+        <div class="stat-sub">Full roster tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--green)">84%</div>
+        <div class="stat-label">Class Avg</div>
+        <div class="stat-sub">↑ 12pts from Sep</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--purple)">6</div>
+        <div class="stat-label">Time Periods</div>
+        <div class="stat-sub">Sep through Feb</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--yellow)">2</div>
+        <div class="stat-label">Assessments</div>
+        <div class="stat-sub">Shareable via code</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how-it-works">
+    <div class="section-label">How It Works</div>
+    <h2>Input → Reasoning → Output</h2>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Teacher inputs student roster and creates assessment</h4>
+        <p>The teacher loads their class roster and selects or builds a multiple-choice math assessment. The app generates a unique shareable code (e.g. MATH-A1-XK92P) students use to access the quiz from any device.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Students complete the assessment independently</h4>
+        <p>Students enter the code and see a clean multiple-choice interface. Each question is presented one at a time with labeled answer options. The UI is simple enough for any grade level to navigate without teacher assistance.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Claude auto-grades and feeds results to the dashboard</h4>
+        <p>The moment a student submits, Claude scores each response, maps results to the student's historical record, and updates the teacher dashboard in real time. Students see immediate per-question ✓/✗ feedback with their score.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Dashboard visualizes growth over time</h4>
+        <p>The Progress Tracker renders a color heat map showing every student's scores across 6 time periods (Sep–Feb). The teacher can sort by score, growth rate, or performance group — and filter to isolate students who need intervention.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Year-end report generated automatically</h4>
+        <p>At year-end, a full objective data table is generated showing start score, end score, total growth, performance group, and teacher feedback for every student. Exportable as a PDF for administrators, parents, or compliance reporting.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENSHOTS -->
+  <section class="section" id="screenshots">
+    <div class="section-label">Proof / Demo</div>
+    <h2>Screenshots</h2>
+
+    <!-- Screenshot 1 -->
+    <div class="screenshot-item">
+      <div class="screenshot-num">01 OF 05</div>
+      <div class="screenshot-title">Dashboard Overview</div>
+      <div class="screenshot-desc">Main screen showing class average, performance group breakdown, and color-coded bar chart across all students.</div>
+      <div class="screenshot-frame">
+        <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
+          <rect width="680" height="300" fill="#0a0e1a"/>
+          <rect x="0" y="0" width="160" height="300" fill="#111827"/>
+          <rect x="0" y="0" width="160" height="300" fill="none" stroke="#2a3a5c" stroke-width="1"/>
+          <text x="16" y="28" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="2">MATHTRACK</text>
+          <text x="16" y="46" font-family="sans-serif" font-size="14" fill="#4f8ef7" font-weight="800">Pro Dashboard</text>
+          <text x="16" y="60" font-family="sans-serif" font-size="9" fill="#6b7fa3">Room 204 · Ms. Rivera</text>
+          <rect x="8" y="74" width="144" height="26" rx="6" fill="#4f8ef715" stroke="#4f8ef7" stroke-width="0.5"/>
+          <text x="30" y="91" font-family="sans-serif" font-size="11" fill="#4f8ef7" font-weight="600">⬡  Dashboard</text>
+          <text x="30" y="116" font-family="sans-serif" font-size="11" fill="#6b7fa3">◈  Students</text>
+          <text x="30" y="136" font-family="sans-serif" font-size="11" fill="#6b7fa3">◫  Assessments</text>
+          <text x="30" y="156" font-family="sans-serif" font-size="11" fill="#6b7fa3">◰  Progress</text>
+          <text x="30" y="176" font-family="sans-serif" font-size="11" fill="#6b7fa3">◳  Year-End</text>
+          <text x="16" y="248" font-family="sans-serif" font-size="9" fill="#6b7fa3">Class Average</text>
+          <text x="16" y="274" font-family="sans-serif" font-size="28" fill="#22d3a0" font-weight="800">84%</text>
+          <text x="16" y="288" font-family="sans-serif" font-size="8" fill="#6b7fa3">↑ 12pts from Sep</text>
+          <rect x="174" y="16" width="108" height="64" rx="8" fill="#1a2236" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="184" y="32" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">CLASS AVG</text>
+          <text x="184" y="58" font-family="sans-serif" font-size="22" fill="#4f8ef7" font-weight="800">84%</text>
+          <text x="184" y="72" font-family="sans-serif" font-size="8" fill="#6b7fa3">↑ 12pts since Sep</text>
+          <rect x="290" y="16" width="108" height="64" rx="8" fill="#1a2236" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="300" y="32" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">ADVANCED</text>
+          <text x="300" y="58" font-family="sans-serif" font-size="22" fill="#22d3a0" font-weight="800">3</text>
+          <text x="300" y="72" font-family="sans-serif" font-size="8" fill="#6b7fa3">≥ 90% students</text>
+          <rect x="406" y="16" width="108" height="64" rx="8" fill="#1a2236" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="416" y="32" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">NEEDS SUPPORT</text>
+          <text x="416" y="58" font-family="sans-serif" font-size="22" fill="#f5c842" font-weight="800">5</text>
+          <text x="416" y="72" font-family="sans-serif" font-size="8" fill="#6b7fa3">Developing + Emerging</text>
+          <rect x="522" y="16" width="108" height="64" rx="8" fill="#1a2236" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="532" y="32" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">ASSESSMENTS</text>
+          <text x="532" y="58" font-family="sans-serif" font-size="22" fill="#a78bfa" font-weight="800">2</text>
+          <text x="532" y="72" font-family="sans-serif" font-size="8" fill="#6b7fa3">This semester</text>
+          <rect x="174" y="96" width="300" height="190" rx="8" fill="#1a2236" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="186" y="114" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">CURRENT SCORES — ALL STUDENTS</text>
+          <rect x="186" y="196" width="22" height="70" rx="3" fill="#22d3a055"/><rect x="186" y="226" width="22" height="40" rx="3" fill="#22d3a0"/>
+          <rect x="212" y="206" width="22" height="60" rx="3" fill="#f5c84255"/><rect x="212" y="236" width="22" height="30" rx="3" fill="#f5c842"/>
+          <rect x="238" y="190" width="22" height="76" rx="3" fill="#22d3a055"/><rect x="238" y="220" width="22" height="46" rx="3" fill="#22d3a0"/>
+          <rect x="264" y="222" width="22" height="44" rx="3" fill="#f75b5b55"/><rect x="264" y="244" width="22" height="22" rx="3" fill="#f75b5b"/>
+          <rect x="290" y="184" width="22" height="82" rx="3" fill="#22d3a055"/><rect x="290" y="214" width="22" height="52" rx="3" fill="#22d3a0"/>
+          <rect x="316" y="210" width="22" height="56" rx="3" fill="#4f8ef755"/><rect x="316" y="238" width="22" height="28" rx="3" fill="#4f8ef7"/>
+          <rect x="342" y="202" width="22" height="64" rx="3" fill="#4f8ef755"/><rect x="342" y="232" width="22" height="34" rx="3" fill="#4f8ef7"/>
+          <rect x="368" y="218" width="22" height="48" rx="3" fill="#f75b5b55"/><rect x="368" y="242" width="22" height="24" rx="3" fill="#f75b5b"/>
+          <rect x="394" y="182" width="22" height="84" rx="3" fill="#22d3a055"/><rect x="394" y="212" width="22" height="54" rx="3" fill="#22d3a0"/>
+          <rect x="420" y="198" width="22" height="68" rx="3" fill="#4f8ef755"/><rect x="420" y="228" width="22" height="38" rx="3" fill="#4f8ef7"/>
+          <rect x="186" y="272" width="8" height="8" rx="2" fill="#22d3a0"/><text x="198" y="280" font-family="sans-serif" font-size="8" fill="#6b7fa3">Advanced</text>
+          <rect x="244" y="272" width="8" height="8" rx="2" fill="#4f8ef7"/><text x="256" y="280" font-family="sans-serif" font-size="8" fill="#6b7fa3">Proficient</text>
+          <rect x="302" y="272" width="8" height="8" rx="2" fill="#f5c842"/><text x="314" y="280" font-family="sans-serif" font-size="8" fill="#6b7fa3">Developing</text>
+          <rect x="364" y="272" width="8" height="8" rx="2" fill="#f75b5b"/><text x="376" y="280" font-family="sans-serif" font-size="8" fill="#6b7fa3">Emerging</text>
+          <rect x="482" y="96" width="148" height="190" rx="8" fill="#1a2236" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="494" y="114" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">PERFORMANCE GROUPS</text>
+          <text x="494" y="136" font-family="sans-serif" font-size="10" fill="#e8edf7">Advanced</text>
+          <rect x="494" y="140" width="122" height="6" rx="3" fill="#2a3a5c"/><rect x="494" y="140" width="37" height="6" rx="3" fill="#22d3a0"/>
+          <text x="494" y="166" font-family="sans-serif" font-size="10" fill="#e8edf7">Proficient</text>
+          <rect x="494" y="170" width="122" height="6" rx="3" fill="#2a3a5c"/><rect x="494" y="170" width="49" height="6" rx="3" fill="#4f8ef7"/>
+          <text x="494" y="196" font-family="sans-serif" font-size="10" fill="#e8edf7">Developing</text>
+          <rect x="494" y="200" width="122" height="6" rx="3" fill="#2a3a5c"/><rect x="494" y="200" width="37" height="6" rx="3" fill="#f5c842"/>
+          <text x="494" y="226" font-family="sans-serif" font-size="10" fill="#e8edf7">Emerging</text>
+          <rect x="494" y="230" width="122" height="6" rx="3" fill="#2a3a5c"/><rect x="494" y="230" width="25" height="6" rx="3" fill="#f75b5b"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Screenshot 2 -->
+    <div class="screenshot-item">
+      <div class="screenshot-num">02 OF 05</div>
+      <div class="screenshot-title">Student Quiz View</div>
+      <div class="screenshot-desc">Clean multiple-choice interface students access via a shareable code. Simple enough for any grade level.</div>
+      <div class="screenshot-frame">
+        <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg">
+          <rect width="680" height="280" fill="#0a0e1a"/>
+          <text x="340" y="28" font-family="sans-serif" font-size="9" fill="#6b7fa3" font-weight="700" letter-spacing="2" text-anchor="middle">STUDENT VIEW</text>
+          <text x="340" y="48" font-family="sans-serif" font-size="18" fill="#e8edf7" font-weight="800" text-anchor="middle">Fractions &amp; Decimals</text>
+          <rect x="190" y="58" width="300" height="4" rx="2" fill="#2a3a5c"/>
+          <rect x="190" y="58" width="75" height="4" rx="2" fill="#4f8ef7"/>
+          <text x="340" y="74" font-family="sans-serif" font-size="8" fill="#6b7fa3" text-anchor="middle">Question 1 of 4</text>
+          <rect x="140" y="82" width="400" height="170" rx="12" fill="#1a2236" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="156" y="102" font-family="sans-serif" font-size="9" fill="#6b7fa3">Question 1</text>
+          <text x="156" y="120" font-family="sans-serif" font-size="12" fill="#e8edf7" font-weight="600">What is 3/4 expressed as a decimal?</text>
+          <rect x="156" y="132" width="172" height="34" rx="8" fill="#111827" stroke="#4f8ef7" stroke-width="1.5"/>
+          <text x="168" y="147" font-family="monospace" font-size="9" fill="#6b7fa3">A</text>
+          <text x="182" y="147" font-family="sans-serif" font-size="11" fill="#e8edf7">0.34</text>
+          <rect x="352" y="132" width="172" height="34" rx="8" fill="#4f8ef722" stroke="#4f8ef744" stroke-width="0.5"/>
+          <text x="364" y="147" font-family="monospace" font-size="9" fill="#6b7fa3">B</text>
+          <text x="378" y="147" font-family="sans-serif" font-size="11" fill="#e8edf7">0.75</text>
+          <rect x="156" y="172" width="172" height="34" rx="8" fill="#111827" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="168" y="187" font-family="monospace" font-size="9" fill="#6b7fa3">C</text>
+          <text x="182" y="187" font-family="sans-serif" font-size="11" fill="#e8edf7">0.43</text>
+          <rect x="352" y="172" width="172" height="34" rx="8" fill="#111827" stroke="#2a3a5c" stroke-width="0.5"/>
+          <text x="364" y="187" font-family="monospace" font-size="9" fill="#6b7fa3">D</text>
+          <text x="378" y="187" font-family="sans-serif" font-size="11" fill="#e8edf7">0.73</text>
+          <rect x="156" y="216" width="368" height="28" rx="8" fill="#2a3a5c"/>
+          <text x="340" y="234" font-family="sans-serif" font-size="10" fill="#6b7fa3" text-anchor="middle" font-weight="700">Answer all questions to submit</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Screenshot 3 -->
+    <div class="screenshot-item">
+      <div class="screenshot-num">03 OF 05</div>
+      <div class="screenshot-title">Auto-Graded Results</div>
+      <div class="screenshot-desc">Instant per-question ✓/✗ feedback with score. Results are simultaneously sent to the teacher dashboard.</div>
+      <div class="screenshot-frame">
+        <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg">
+          <rect width="680" height="240" fill="#0a0e1a"/>
+          <rect x="190" y="20" width="300" height="200" rx="14" fill="#1a2236" stroke="#22d3a055" stroke-width="1.5"/>
+          <circle cx="340" cy="62" r="22" fill="#22d3a022" stroke="#22d3a0" stroke-width="1.5"/>
+          <text x="340" y="70" font-family="sans-serif" font-size="20" fill="#22d3a0" text-anchor="middle">✓</text>
+          <text x="340" y="108" font-family="sans-serif" font-size="24" fill="#22d3a0" font-weight="800" text-anchor="middle">Score: 75%</text>
+          <text x="340" y="126" font-family="sans-serif" font-size="10" fill="#6b7fa3" text-anchor="middle">Assessment submitted. Results sent to teacher.</text>
+          <circle cx="280" cy="158" r="16" fill="#22d3a022" stroke="#22d3a0" stroke-width="1.5"/>
+          <text x="280" y="163" font-family="sans-serif" font-size="13" fill="#22d3a0" text-anchor="middle">✓</text>
+          <circle cx="320" cy="158" r="16" fill="#22d3a022" stroke="#22d3a0" stroke-width="1.5"/>
+          <text x="320" y="163" font-family="sans-serif" font-size="13" fill="#22d3a0" text-anchor="middle">✓</text>
+          <circle cx="360" cy="158" r="16" fill="#f75b5b22" stroke="#f75b5b" stroke-width="1.5"/>
+          <text x="360" y="163" font-family="sans-serif" font-size="13" fill="#f75b5b" text-anchor="middle">✗</text>
+          <circle cx="400" cy="158" r="16" fill="#22d3a022" stroke="#22d3a0" stroke-width="1.5"/>
+          <text x="400" y="163" font-family="sans-serif" font-size="13" fill="#22d3a0" text-anchor="middle">✓</text>
+          <text x="280" y="186" font-family="sans-serif" font-size="8" fill="#6b7fa3" text-anchor="middle">Q1</text>
+          <text x="320" y="186" font-family="sans-serif" font-size="8" fill="#6b7fa3" text-anchor="middle">Q2</text>
+          <text x="360" y="186" font-family="sans-serif" font-size="8" fill="#6b7fa3" text-anchor="middle">Q3</text>
+          <text x="400" y="186" font-family="sans-serif" font-size="8" fill="#6b7fa3" text-anchor="middle">Q4</text>
+          <rect x="262" y="198" width="176" height="16" rx="6" fill="#4f8ef7"/>
+          <text x="350" y="210" font-family="sans-serif" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">Back to Assessments</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Screenshot 4 -->
+    <div class="screenshot-item">
+      <div class="screenshot-num">04 OF 05</div>
+      <div class="screenshot-title">Progress Tracker</div>
+      <div class="screenshot-desc">Heat map showing every student's score across 6 time periods (Sep–Feb) with total growth delta per student.</div>
+      <div class="screenshot-frame">
+        <svg viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg">
+          <rect width="680" height="230" fill="#0a0e1a"/>
+          <text x="174" y="28" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="2">MONITORING</text>
+          <text x="174" y="48" font-family="sans-serif" font-size="18" fill="#e8edf7" font-weight="800">Progress Tracker</text>
+          <text x="232" y="66" font-family="monospace" font-size="9" fill="#6b7fa3" text-anchor="middle">Sep</text>
+          <text x="290" y="66" font-family="monospace" font-size="9" fill="#6b7fa3" text-anchor="middle">Oct</text>
+          <text x="348" y="66" font-family="monospace" font-size="9" fill="#6b7fa3" text-anchor="middle">Nov</text>
+          <text x="406" y="66" font-family="monospace" font-size="9" fill="#6b7fa3" text-anchor="middle">Dec</text>
+          <text x="464" y="66" font-family="monospace" font-size="9" fill="#6b7fa3" text-anchor="middle">Jan</text>
+          <text x="522" y="66" font-family="monospace" font-size="9" fill="#6b7fa3" text-anchor="middle">Feb</text>
+          <text x="206" y="84" font-family="sans-serif" font-size="9" fill="#e8edf7" text-anchor="end">Ava M.</text>
+          <rect x="210" y="72" width="44" height="16" rx="3" fill="#4f8ef755"/><text x="232" y="84" font-family="sans-serif" font-size="8" fill="#4f8ef7" text-anchor="middle">72</text>
+          <rect x="268" y="72" width="44" height="16" rx="3" fill="#4f8ef7aa"/><text x="290" y="84" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">78</text>
+          <rect x="326" y="72" width="44" height="16" rx="3" fill="#22d3a066"/><text x="348" y="84" font-family="sans-serif" font-size="8" fill="#22d3a0" text-anchor="middle">84</text>
+          <rect x="384" y="72" width="44" height="16" rx="3" fill="#22d3a099"/><text x="406" y="84" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">88</text>
+          <rect x="442" y="72" width="44" height="16" rx="3" fill="#22d3a0cc"/><text x="464" y="84" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">91</text>
+          <rect x="500" y="72" width="44" height="16" rx="3" fill="#22d3a0ff"/><text x="522" y="84" font-family="sans-serif" font-size="8" fill="#0a0e1a" text-anchor="middle" font-weight="700">95</text>
+          <text x="556" y="84" font-family="sans-serif" font-size="9" fill="#22d3a0" font-weight="700">+23</text>
+          <text x="206" y="104" font-family="sans-serif" font-size="9" fill="#e8edf7" text-anchor="end">Emma J.</text>
+          <rect x="210" y="92" width="44" height="16" rx="3" fill="#22d3a099"/><text x="232" y="104" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">88</text>
+          <rect x="268" y="92" width="44" height="16" rx="3" fill="#22d3a0bb"/><text x="290" y="104" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">90</text>
+          <rect x="326" y="92" width="44" height="16" rx="3" fill="#22d3a0cc"/><text x="348" y="104" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">92</text>
+          <rect x="384" y="92" width="44" height="16" rx="3" fill="#22d3a0dd"/><text x="406" y="104" font-family="sans-serif" font-size="8" fill="#0a0e1a" text-anchor="middle">94</text>
+          <rect x="442" y="92" width="44" height="16" rx="3" fill="#22d3a0ee"/><text x="464" y="104" font-family="sans-serif" font-size="8" fill="#0a0e1a" text-anchor="middle">96</text>
+          <rect x="500" y="92" width="44" height="16" rx="3" fill="#22d3a0ff"/><text x="522" y="104" font-family="sans-serif" font-size="8" fill="#0a0e1a" text-anchor="middle" font-weight="700">98</text>
+          <text x="556" y="104" font-family="sans-serif" font-size="9" fill="#22d3a0" font-weight="700">+10</text>
+          <text x="206" y="124" font-family="sans-serif" font-size="9" fill="#e8edf7" text-anchor="end">Sophia C.</text>
+          <rect x="210" y="112" width="44" height="16" rx="3" fill="#4f8ef788"/><text x="232" y="124" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">80</text>
+          <rect x="268" y="112" width="44" height="16" rx="3" fill="#4f8ef766"/><text x="290" y="124" font-family="sans-serif" font-size="8" fill="#4f8ef7" text-anchor="middle">79</text>
+          <rect x="326" y="112" width="44" height="16" rx="3" fill="#4f8ef799"/><text x="348" y="124" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">82</text>
+          <rect x="384" y="112" width="44" height="16" rx="3" fill="#22d3a066"/><text x="406" y="124" font-family="sans-serif" font-size="8" fill="#22d3a0" text-anchor="middle">85</text>
+          <rect x="442" y="112" width="44" height="16" rx="3" fill="#4f8ef7aa"/><text x="464" y="124" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">83</text>
+          <rect x="500" y="112" width="44" height="16" rx="3" fill="#22d3a077"/><text x="522" y="124" font-family="sans-serif" font-size="8" fill="#22d3a0" text-anchor="middle">87</text>
+          <text x="556" y="124" font-family="sans-serif" font-size="9" fill="#4f8ef7" font-weight="700">+7</text>
+          <text x="206" y="144" font-family="sans-serif" font-size="9" fill="#e8edf7" text-anchor="end">Liam T.</text>
+          <rect x="210" y="132" width="44" height="16" rx="3" fill="#f75b5b44"/><text x="232" y="144" font-family="sans-serif" font-size="8" fill="#f75b5b" text-anchor="middle">55</text>
+          <rect x="268" y="132" width="44" height="16" rx="3" fill="#f75b5b55"/><text x="290" y="144" font-family="sans-serif" font-size="8" fill="#f75b5b" text-anchor="middle">58</text>
+          <rect x="326" y="132" width="44" height="16" rx="3" fill="#f5c84244"/><text x="348" y="144" font-family="sans-serif" font-size="8" fill="#f5c842" text-anchor="middle">61</text>
+          <rect x="384" y="132" width="44" height="16" rx="3" fill="#f5c84255"/><text x="406" y="144" font-family="sans-serif" font-size="8" fill="#f5c842" text-anchor="middle">60</text>
+          <rect x="442" y="132" width="44" height="16" rx="3" fill="#f5c84266"/><text x="464" y="144" font-family="sans-serif" font-size="8" fill="#f5c842" text-anchor="middle">63</text>
+          <rect x="500" y="132" width="44" height="16" rx="3" fill="#f5c84277"/><text x="522" y="144" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">67</text>
+          <text x="556" y="144" font-family="sans-serif" font-size="9" fill="#f5c842" font-weight="700">+12</text>
+          <text x="206" y="164" font-family="sans-serif" font-size="9" fill="#e8edf7" text-anchor="end">Noah P.</text>
+          <rect x="210" y="152" width="44" height="16" rx="3" fill="#f75b5b33"/><text x="232" y="164" font-family="sans-serif" font-size="8" fill="#f75b5b" text-anchor="middle">42</text>
+          <rect x="268" y="152" width="44" height="16" rx="3" fill="#f75b5b44"/><text x="290" y="164" font-family="sans-serif" font-size="8" fill="#f75b5b" text-anchor="middle">45</text>
+          <rect x="326" y="152" width="44" height="16" rx="3" fill="#f75b5b33"/><text x="348" y="164" font-family="sans-serif" font-size="8" fill="#f75b5b" text-anchor="middle">43</text>
+          <rect x="384" y="152" width="44" height="16" rx="3" fill="#f75b5b55"/><text x="406" y="164" font-family="sans-serif" font-size="8" fill="#f75b5b" text-anchor="middle">48</text>
+          <rect x="442" y="152" width="44" height="16" rx="3" fill="#f75b5b66"/><text x="464" y="164" font-family="sans-serif" font-size="8" fill="#f75b5b" text-anchor="middle">50</text>
+          <rect x="500" y="152" width="44" height="16" rx="3" fill="#f75b5b77"/><text x="522" y="164" font-family="sans-serif" font-size="8" fill="#fff" text-anchor="middle">52</text>
+          <text x="556" y="164" font-family="sans-serif" font-size="9" fill="#f75b5b" font-weight="700">+10</text>
+          <rect x="210" y="186" width="12" height="12" rx="2" fill="#f75b5b66"/><text x="226" y="197" font-family="sans-serif" font-size="8" fill="#6b7fa3">Emerging</text>
+          <rect x="290" y="186" width="12" height="12" rx="2" fill="#f5c84266"/><text x="306" y="197" font-family="sans-serif" font-size="8" fill="#6b7fa3">Developing</text>
+          <rect x="380" y="186" width="12" height="12" rx="2" fill="#4f8ef788"/><text x="396" y="197" font-family="sans-serif" font-size="8" fill="#6b7fa3">Proficient</text>
+          <rect x="458" y="186" width="12" height="12" rx="2" fill="#22d3a0cc"/><text x="474" y="197" font-family="sans-serif" font-size="8" fill="#6b7fa3">Advanced</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Screenshot 5 -->
+    <div class="screenshot-item">
+      <div class="screenshot-num">05 OF 05</div>
+      <div class="screenshot-title">Year-End Report</div>
+      <div class="screenshot-desc">Full objective data table with start score, end score, growth, performance group, and teacher feedback. Exportable as PDF.</div>
+      <div class="screenshot-frame">
+        <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg">
+          <rect width="680" height="280" fill="#0a0e1a"/>
+          <text x="174" y="24" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="2">ANNUAL SUMMARY</text>
+          <text x="174" y="44" font-family="sans-serif" font-size="18" fill="#e8edf7" font-weight="800">Year-End Progress Report</text>
+          <rect x="174" y="54" width="148" height="44" rx="8" fill="#1a2236" stroke="#22d3a044" stroke-width="0.5"/>
+          <text x="184" y="70" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700">CLASS AVG GROWTH</text>
+          <text x="184" y="90" font-family="sans-serif" font-size="18" fill="#22d3a0" font-weight="800">+14pts</text>
+          <rect x="330" y="54" width="148" height="44" rx="8" fill="#1a2236" stroke="#4f8ef744" stroke-width="0.5"/>
+          <text x="340" y="70" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700">STUDENTS IMPROVED</text>
+          <text x="340" y="90" font-family="sans-serif" font-size="18" fill="#4f8ef7" font-weight="800">10/10</text>
+          <rect x="486" y="54" width="148" height="44" rx="8" fill="#1a2236" stroke="#a78bfa44" stroke-width="0.5"/>
+          <text x="496" y="70" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700">ADVANCED STUDENTS</text>
+          <text x="496" y="90" font-family="sans-serif" font-size="18" fill="#a78bfa" font-weight="800">3</text>
+          <rect x="174" y="108" width="460" height="22" rx="0" fill="#1a2236"/>
+          <text x="184" y="123" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">STUDENT</text>
+          <text x="304" y="123" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">START</text>
+          <text x="354" y="123" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">END</text>
+          <text x="400" y="123" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">GROWTH</text>
+          <text x="460" y="123" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">GROUP</text>
+          <text x="530" y="123" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-weight="700" letter-spacing="1">FEEDBACK</text>
+          <rect x="174" y="130" width="460" height="22" fill="none" stroke="#2a3a5c22" stroke-width="0.5"/>
+          <text x="184" y="145" font-family="sans-serif" font-size="9" fill="#e8edf7" font-weight="600">Emma Johnson</text>
+          <text x="304" y="145" font-family="sans-serif" font-size="9" fill="#6b7fa3">88%</text>
+          <text x="354" y="145" font-family="sans-serif" font-size="9" fill="#22d3a0" font-weight="700">98%</text>
+          <text x="400" y="145" font-family="sans-serif" font-size="9" fill="#22d3a0" font-weight="700">+10</text>
+          <rect x="456" y="135" width="52" height="14" rx="7" fill="#22d3a022"/>
+          <text x="482" y="146" font-family="sans-serif" font-size="8" fill="#22d3a0" text-anchor="middle">Advanced</text>
+          <text x="526" y="145" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-style="italic">Exceptional growth…</text>
+          <rect x="174" y="152" width="460" height="22" fill="none" stroke="#2a3a5c22" stroke-width="0.5"/>
+          <text x="184" y="167" font-family="sans-serif" font-size="9" fill="#e8edf7" font-weight="600">Ava Mitchell</text>
+          <text x="304" y="167" font-family="sans-serif" font-size="9" fill="#6b7fa3">72%</text>
+          <text x="354" y="167" font-family="sans-serif" font-size="9" fill="#22d3a0" font-weight="700">95%</text>
+          <text x="400" y="167" font-family="sans-serif" font-size="9" fill="#22d3a0" font-weight="700">+23</text>
+          <rect x="456" y="157" width="52" height="14" rx="7" fill="#22d3a022"/>
+          <text x="482" y="168" font-family="sans-serif" font-size="8" fill="#22d3a0" text-anchor="middle">Advanced</text>
+          <text x="526" y="167" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-style="italic">Strong progress…</text>
+          <rect x="174" y="174" width="460" height="22" fill="none" stroke="#2a3a5c22" stroke-width="0.5"/>
+          <text x="184" y="189" font-family="sans-serif" font-size="9" fill="#e8edf7" font-weight="600">Sophia Chen</text>
+          <text x="304" y="189" font-family="sans-serif" font-size="9" fill="#6b7fa3">80%</text>
+          <text x="354" y="189" font-family="sans-serif" font-size="9" fill="#4f8ef7" font-weight="700">87%</text>
+          <text x="400" y="189" font-family="sans-serif" font-size="9" fill="#4f8ef7" font-weight="700">+7</text>
+          <rect x="456" y="179" width="52" height="14" rx="7" fill="#4f8ef722"/>
+          <text x="482" y="190" font-family="sans-serif" font-size="8" fill="#4f8ef7" text-anchor="middle">Proficient</text>
+          <rect x="174" y="196" width="460" height="22" fill="none" stroke="#2a3a5c22" stroke-width="0.5"/>
+          <text x="184" y="211" font-family="sans-serif" font-size="9" fill="#e8edf7" font-weight="600">Mason Williams</text>
+          <text x="304" y="211" font-family="sans-serif" font-size="9" fill="#6b7fa3">65%</text>
+          <text x="354" y="211" font-family="sans-serif" font-size="9" fill="#f5c842" font-weight="700">72%</text>
+          <text x="400" y="211" font-family="sans-serif" font-size="9" fill="#f5c842" font-weight="700">+7</text>
+          <rect x="456" y="201" width="56" height="14" rx="7" fill="#f5c84222"/>
+          <text x="484" y="212" font-family="sans-serif" font-size="8" fill="#f5c842" text-anchor="middle">Developing</text>
+          <rect x="174" y="218" width="460" height="22" fill="none" stroke="#2a3a5c22" stroke-width="0.5"/>
+          <text x="184" y="233" font-family="sans-serif" font-size="9" fill="#e8edf7" font-weight="600">Noah Patel</text>
+          <text x="304" y="233" font-family="sans-serif" font-size="9" fill="#6b7fa3">42%</text>
+          <text x="354" y="233" font-family="sans-serif" font-size="9" fill="#f75b5b" font-weight="700">52%</text>
+          <text x="400" y="233" font-family="sans-serif" font-size="9" fill="#f75b5b" font-weight="700">+10</text>
+          <rect x="456" y="223" width="50" height="14" rx="7" fill="#f75b5b22"/>
+          <text x="481" y="234" font-family="sans-serif" font-size="8" fill="#f75b5b" text-anchor="middle">Emerging</text>
+          <text x="526" y="233" font-family="sans-serif" font-size="8" fill="#6b7fa3" font-style="italic">Needs intervention…</text>
+          <rect x="174" y="248" width="460" height="26" rx="8" fill="#4f8ef711" stroke="#4f8ef733" stroke-width="0.5"/>
+          <text x="404" y="265" font-family="sans-serif" font-size="10" fill="#4f8ef7" text-anchor="middle" font-weight="700">Export Full Year-End Report as PDF ↗</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT -->
+  <section class="section" id="impact">
+    <div class="section-label">Result / Impact</div>
+    <h2>What Changed</h2>
+    <div class="grid-3">
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--green)">~70%</div>
+        <div class="stat-label">Time Saved</div>
+        <div class="stat-sub">Reduction in assessment prep and grading time per week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--accent)">Real-time</div>
+        <div class="stat-label">Data Updates</div>
+        <div class="stat-sub">Results appear in teacher dashboard the moment students submit</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--purple)">1-click</div>
+        <div class="stat-label">Year-End Report</div>
+        <div class="stat-sub">Exportable PDF ready for admin, parents, or compliance</div>
+      </div>
+    </div>
+    <div style="height: 24px;"></div>
+    <div class="card">
+      <h3>Proof Description</h3>
+      <p>Screenshots show the complete teacher and student workflow: the main dashboard displays class average, performance groups, and color-coded scores across all students. The student quiz view demonstrates the clean, shareable multiple-choice interface students access via a generated code. Auto-graded results show instant scoring with per-question feedback sent directly to the teacher dashboard. The progress tracker displays a color heat map of every student's growth across 6 time periods (Sep–Feb). The year-end report presents objective start score, end score, and growth data for every student — exportable as a PDF for administrators and parents.</p>
+    </div>
+  </section>
+
+  <!-- NEXT STEPS -->
+  <section class="section" id="next">
+    <div class="section-label">What I'd Improve Next</div>
+    <h2>Next Steps</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>LMS Integration</h3>
+        <p>Connect with Google Classroom or Canvas so assessments sync automatically with existing school systems. Teachers shouldn't have to manage two platforms.</p>
+      </div>
+      <div class="card">
+        <h3>AI Intervention Suggestions</h3>
+        <p>For each student in the Emerging group, Claude generates a specific intervention recommendation — identifying which skills to target based on their assessment history, not just their score.</p>
+      </div>
+      <div class="card">
+        <h3>Live Job Board Integration</h3>
+        <p>Pull real-time assessment data from district-level systems so progress monitoring stays current without manual entry by the teacher.</p>
+      </div>
+      <div class="card">
+        <h3>Parent Portal</h3>
+        <p>A read-only parent-facing view that shows their child's progress over time, with plain-language explanations of what the scores mean and what's being done to support growth.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENTIC AI IDEAS -->
+  <section class="section" id="agentic">
+    <div class="section-label">Bonus — Agentic AI</div>
+    <h2>What an Agentic AI Project Looks Like</h2>
+    <p>Agentic AI goes beyond responding to a prompt — the AI <strong>takes actions</strong>, makes decisions across multiple steps, uses tools, and completes tasks autonomously without requiring input at each step.</p>
+    <div class="grid-2" style="margin-top: 24px;">
+      <div class="idea-card">
+        <div class="idea-num">IDEA 01</div>
+        <h4>Job Application Agent</h4>
+        <p>Searches job boards, tailors your resume for each listing, drafts cover letters, and tracks applications in a spreadsheet — all from one prompt.</p>
+      </div>
+      <div class="idea-card">
+        <div class="idea-num">IDEA 02</div>
+        <h4>Research Assistant Agent</h4>
+        <p>Give it a topic. It searches the web, pulls sources, summarizes findings, identifies gaps, and produces a formatted report autonomously.</p>
+      </div>
+      <div class="idea-card">
+        <div class="idea-num">IDEA 03</div>
+        <h4>Social Media Manager Agent</h4>
+        <p>Monitors a topic or brand, drafts posts, schedules them, and replies to comments — running on a loop without manual input each cycle.</p>
+      </div>
+      <div class="idea-card">
+        <div class="idea-num">IDEA 04</div>
+        <h4>Personal Finance Agent</h4>
+        <p>Reads bank transactions, categorizes spending, flags unusual charges, and emails you a weekly summary with savings recommendations.</p>
+      </div>
+      <div class="idea-card">
+        <div class="idea-num">IDEA 05</div>
+        <h4>Meeting Prep Agent</h4>
+        <p>Before every calendar event, it researches attendees, pulls relevant docs from Drive, and drops a briefing note in Slack automatically.</p>
+      </div>
+      <div class="idea-card">
+        <div class="idea-num">IDEA 06</div>
+        <h4>Customer Support Agent</h4>
+        <p>Handles inbound questions end-to-end — reads the inquiry, checks order status, drafts a reply, and escalates only when it can't resolve.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <footer>
+    <p style="color: var(--accent); font-weight: 700; font-size: 14px; margin-bottom: 8px;">MathTrack Pro</p>
+    <p>AI Circles · Week 1 — Custom GPTs, RAG &amp; Memory</p>
+    <p>Built with Claude · React · Anthropic API</p>
+    <p style="margin-top: 12px; font-size: 10px;">Dane Bonnigson · Palmetto Group Consulting · palmettogroup.ai</p>
+  </footer>
+
+</div>
+</body>
+</html>

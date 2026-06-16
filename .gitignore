@@ -1,0 +1,13 @@
+# OS cruft
+.DS_Store
+
+# Internal / dev-only files — kept on disk, not published
+functions/
+login.html
+generate-hash.mjs
+screenshot.mjs
+master-index.html
+
+# Old backups — kept on disk, not published
+index-lime-dark-backup.html
+index-ai-trainer-smb-backup.html

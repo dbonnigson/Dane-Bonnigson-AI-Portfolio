@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAFT Prompt Cheat-Sheet · Handout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0d1b3e;--navy-light:#1e3a6e;--navy-pale:#e8edf6;
+    --off:#f6f8fc;--white:#fff;--line:#dce3f0;
+    --text:#0a0c10;--text-mid:#414a5e;--text-light:#7a849a;
+    --warn-bg:#fff7ed;--warn-line:#f0c98a;--warn-ink:#7a4b00;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Instrument Sans',sans-serif;color:var(--text);background:var(--off);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px}
+  a{color:var(--navy)}
+  header.hero{background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;padding:40px 0 34px}
+  .breadcrumb{font-size:.82rem;color:#aebbd9;margin-bottom:16px}
+  .breadcrumb a{color:#cdd9f5;text-decoration:none}
+  .breadcrumb a:hover{text-decoration:underline}
+  .breadcrumb span{margin:0 7px;color:#5f73a3}
+  .badge{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;background:rgba(255,255,255,.14);padding:6px 12px;border-radius:30px;margin-bottom:14px}
+  header.hero h1{font-family:'Playfair Display',serif;font-weight:700;font-size:2.1rem;line-height:1.12}
+  header.hero h1 em{font-style:italic;color:#bcd0ff}
+  header.hero p{color:#d6deef;margin-top:10px;max-width:60ch}
+  main{padding:30px 0 70px}
+  section.block{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px 30px;margin-bottom:20px;box-shadow:0 1px 3px rgba(13,27,62,.04)}
+  .tag{display:inline-block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--navy);background:var(--navy-pale);padding:5px 11px;border-radius:6px;margin-bottom:14px}
+  h2{font-family:'Playfair Display',serif;font-weight:700;font-size:1.5rem;color:var(--navy);margin-bottom:8px}
+  p{margin-bottom:12px;color:var(--text-mid)}
+  .qr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+  .print-btn{flex-shrink:0;font-size:.82rem;font-weight:500;border:1px solid var(--navy-light);background:#fff;color:var(--navy);border-radius:8px;padding:8px 15px;cursor:pointer}
+  .print-btn:hover{background:var(--navy-pale)}
+  ol.steps{list-style:none;counter-reset:s;margin-top:14px}
+  ol.steps li{position:relative;counter-increment:s;padding:13px 0 13px 50px;border-bottom:1px solid var(--line)}
+  ol.steps li:last-child{border-bottom:none}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:12px;width:32px;height:32px;border-radius:8px;background:var(--navy);color:#fff;font-weight:600;font-family:'Playfair Display',serif;display:flex;align-items:center;justify-content:center}
+  ol.steps b{color:var(--text)}
+  .tmpl{font-family:'JetBrains Mono',monospace;font-size:.86rem;color:#e8eefc;background:var(--navy);border-radius:10px;padding:18px 20px;white-space:pre-wrap;line-height:1.7;margin-top:8px}
+  .tmpl .ph{color:#bcd0ff}
+  .pitfalls{background:var(--warn-bg);border:1px solid var(--warn-line);border-left:5px solid #e08a00;border-radius:10px;padding:16px 20px}
+  .pitfalls h2{color:var(--warn-ink);font-size:1.2rem}
+  .pitfalls ul{list-style:none;margin-top:6px}
+  .pitfalls li{position:relative;padding:5px 0 5px 22px;color:#5a4a20;font-size:.95rem}
+  .pitfalls li::before{content:"\26A0";position:absolute;left:0;top:5px;font-size:.85rem}
+  footer.site{background:var(--navy);color:#cdd9f5;padding:26px 0;font-size:.86rem}
+  footer.site a{color:#bcd0ff}
+  @media print{body{background:#fff}header.hero,footer.site,.print-btn,.breadcrumb{display:none}section.block{border:none;box-shadow:none;padding:0;margin-bottom:24px}@page{margin:.6in}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="ai-prompting-lesson.html">Better Prompts, Safer AI</a><span>/</span>Handout</div>
+    <span class="badge">Handout</span>
+    <h1>CRAFT Prompt <em>Cheat-Sheet</em></h1>
+    <p>The five parts of a prompt that works, plus a fill-in template you can reuse on any task.</p>
+  </div>
+</header>
+<main class="wrap">
+  <section class="block">
+    <div class="qr-head">
+      <div><div class="tag">The Five Parts</div><h2>CRAFT, on one page</h2></div>
+      <button class="print-btn" onclick="window.print()">&#128424; Print</button>
+    </div>
+    <p>Name these five things and the output gets dramatically better.</p>
+    <ol class="steps">
+      <li><b>Context</b> &mdash; the situation and your goal. <em>"I run a small clinic launching evening telehealth hours."</em> Leave out anything private.</li>
+      <li><b>Role</b> &mdash; tell the AI who to be. <em>"You are a patient-communications writer."</em> The single highest-leverage change you can make.</li>
+      <li><b>Action</b> &mdash; one clear, verb-driven task: write, rewrite, summarize, compare, list.</li>
+      <li><b>Format</b> &mdash; the shape of the output: "three captions under 30 words," "a 5-row table."</li>
+      <li><b>Tone &amp; examples</b> &mdash; how it should sound, plus a sample to match.</li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <div class="tag">Fill-in Template</div>
+    <h2>Copy this, swap the brackets</h2>
+    <p>A reusable skeleton. Replace the highlighted parts and delete anything you don't need.</p>
+    <div class="tmpl">You are <span class="ph">[ROLE]</span>.
+Context: <span class="ph">[the situation and your goal, no private details]</span>.
+Please <span class="ph">[ACTION: write / rewrite / summarize / compare]</span> it as <span class="ph">[FORMAT: e.g. 3 bullets, a short email under 90 words, a 5-row table]</span>.
+Tone: <span class="ph">[how it should sound]</span>, like this: "<span class="ph">[a one-line example to match]</span>".</div>
+  </section>
+
+  <section class="block pitfalls">
+    <h2>Common pitfalls</h2>
+    <ul>
+      <li>Starting a brand-new chat to fix a draft &mdash; iterate in the same chat instead, so you keep the context.</li>
+      <li>Pasting real names, account numbers, or health details into a public/personal AI tool.</li>
+      <li>Skipping the Role &mdash; "help me with this" gets a shrug; a role reframes the whole answer.</li>
+      <li>Giving no Format, then being surprised the output is the wrong length or shape.</li>
+    </ul>
+  </section>
+</main>
+<footer class="site">
+  <div class="wrap"><a href="ai-prompting-lesson.html">&larr; Back to the lesson</a></div>
+</footer>
+</body>
+</html>

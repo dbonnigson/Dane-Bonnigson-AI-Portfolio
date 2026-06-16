@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenville Guide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --panel:#1a2420; --panel2:#212e28; --panel3:#273530;
+  --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.13);
+  --rust:#c4622d; --rust-g:rgba(196,98,45,.3);
+  --gold:#c9943a; --sage:#5c8a6a; --cream:#f4f0e8; --white:#fff;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:Outfit,sans-serif}
+
+#map{position:fixed;inset:0;z-index:0}
+
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:56px;background:var(--panel);
+  display:flex;align-items:center;gap:14px;padding:0 18px;
+  border-bottom:1px solid var(--border);
+  box-shadow:0 2px 20px rgba(0,0,0,.4);
+}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.logo-badge{width:30px;height:30px;background:var(--rust);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 14px var(--rust-g)}
+.logo-text{font-family:"Cormorant Garamond",serif;font-size:19px;font-weight:600;color:var(--cream)}
+.logo-text em{color:var(--gold);font-style:italic}
+.sw{flex:1;max-width:420px;position:relative}
+.sw svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(244,240,232,.28);pointer-events:none}
+.sw input{width:100%;padding:8px 14px 8px 36px;background:rgba(255,255,255,.07);border:1px solid var(--border2);border-radius:8px;color:var(--cream);font-family:Outfit,sans-serif;font-size:13px;outline:none;transition:all .2s}
+.sw input::placeholder{color:rgba(244,240,232,.28)}
+.sw input:focus{background:rgba(255,255,255,.11);border-color:rgba(196,98,45,.55)}
+.sp{display:flex;background:rgba(255,255,255,.06);border:1px solid var(--border2);border-radius:8px;overflow:hidden;flex-shrink:0;margin-left:auto}
+.sb{padding:6px 14px;border:none;background:transparent;color:rgba(244,240,232,.45);font-family:Outfit,sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.sb.active{background:var(--rust);color:var(--white);box-shadow:0 0 14px var(--rust-g)}
+
+.panel{
+  position:fixed;top:56px;left:0;bottom:0;z-index:50;
+  width:330px;background:var(--panel);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  box-shadow:4px 0 32px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+.stats{display:flex;align-items:center;justify-content:space-between;padding:9px 15px;background:var(--panel2);border-bottom:1px solid var(--border);flex-shrink:0}
+.stat-ct{font-size:11.5px;color:rgba(244,240,232,.4)}
+.stat-ct strong{color:var(--cream);font-weight:600}
+.stat-mode{font-size:10px;color:rgba(244,240,232,.25);text-transform:uppercase;letter-spacing:.5px}
+
+.cat-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.07) transparent}
+.cat-list::-webkit-scrollbar{width:3px}
+.cat-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:2px}
+
+.cat-sec{border-bottom:1px solid var(--border)}
+
+/* Photo header toggle */
+.cat-hdr{
+  position:relative;cursor:pointer;overflow:hidden;
+  height:76px;display:flex;align-items:flex-end;
+  transition:height .25s var(--ease);
+}
+.cat-hdr.open{height:84px}
+.cat-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  filter:brightness(.38) saturate(.75);
+  transition:filter .3s;
+}
+.cat-hdr:hover .cat-bg{filter:brightness(.48) saturate(.85)}
+.cat-hdr.open .cat-bg{filter:brightness(.3) saturate(.65)}
+.cat-inner{position:relative;z-index:1;padding:12px 14px;width:100%;display:flex;align-items:center;justify-content:space-between}
+.cat-lbl{display:flex;align-items:center;gap:8px}
+.cat-em{font-size:16px}
+.cat-nm{font-family:"Cormorant Garamond",serif;font-size:16px;font-weight:600;color:var(--cream);text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.cat-ct{font-size:10.5px;color:rgba(244,240,232,.5);margin-left:3px}
+.chev{width:18px;height:18px;color:rgba(244,240,232,.45);transition:transform .25s var(--ease),color .2s;flex-shrink:0}
+.cat-hdr.open .chev{transform:rotate(180deg);color:var(--gold)}
+
+/* Dropdown */
+.cat-cards{max-height:0;overflow:hidden;transition:max-height .38s var(--ease);background:var(--panel2)}
+.cat-cards.open{max-height:580px;overflow-y:auto}
+.cat-cards::-webkit-scrollbar{width:3px}
+.cat-cards::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+.cards-in{padding:8px;display:flex;flex-direction:column;gap:6px}
+
+/* Biz card */
+.biz{background:var(--panel3);border:1px solid var(--border);border-radius:9px;padding:11px;cursor:pointer;transition:all .2s var(--ease);position:relative;overflow:hidden}
+.biz::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background .2s}
+.biz:hover{border-color:rgba(255,255,255,.14);transform:translateX(2px)}
+.biz.active{border-color:var(--rust)}
+.biz.active::before{background:var(--rust)}
+.biz-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.biz-nm{font-family:"Cormorant Garamond",serif;font-size:14px;font-weight:600;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.biz-stars{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.stars{display:flex;gap:1px}
+.star{font-size:9px;color:var(--gold)}
+.star.empty{color:rgba(201,148,58,.2)}
+.star.half{opacity:.5}
+.r-n{font-size:11px;font-weight:600;color:var(--cream)}
+.biz-sub{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;color:var(--gold);margin-bottom:5px}
+.biz-desc{font-size:11px;color:rgba(244,240,232,.38);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
+.biz-foot{display:flex;align-items:center;justify-content:space-between}
+.biz-addr{font-size:10px;color:rgba(244,240,232,.25);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.biz-dist{font-size:10.5px;font-weight:600;color:var(--rust);background:rgba(196,98,45,.13);padding:2px 7px;border-radius:4px;flex-shrink:0}
+
+.cat-empty{padding:16px;text-align:center;color:rgba(244,240,232,.22);font-size:11.5px}
+
+/* Toast */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:200;background:var(--panel);color:var(--cream);border:1px solid var(--border2);padding:8px 18px;border-radius:26px;font-size:12px;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,.45);white-space:nowrap;transition:opacity .4s,transform .4s}
+.toast.hidden{opacity:0;transform:translateX(-50%) translateY(8px);pointer-events:none}
+
+/* Leaflet */
+.leaflet-popup-content-wrapper{border-radius:10px !important;box-shadow:0 8px 40px rgba(0,0,0,.35) !important;padding:0 !important;overflow:hidden;border:1px solid rgba(0,0,0,.1)}
+.leaflet-popup-content{margin:0 !important;width:225px !important}
+.leaflet-popup-tip-container{display:none}
+.pu{background:#fff;padding:13px}
+.pu-name{font-family:"Cormorant Garamond",serif;font-size:15px;font-weight:700;color:#1a2420;margin-bottom:2px}
+.pu-cat{font-size:9.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--rust);margin-bottom:7px}
+.pu-row{font-size:11.5px;color:#3a443f;margin-bottom:4px}
+.pu-hrs{font-size:10px;color:#6b7870;margin-top:2px}
+.pu-dist{margin-top:7px;display:inline-block;background:var(--rust);color:white;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:600}
+
+.m-dot{width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer;transition:transform .15s}
+.m-dot.big{transform:scale(1.7)}
+.user-dot{width:14px;height:14px;background:var(--rust);border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px var(--rust-g),0 3px 12px rgba(0,0,0,.4);animation:throb 2s infinite;cursor:grab}
+@keyframes throb{0%,100%{box-shadow:0 0 0 3px var(--rust-g),0 3px 12px rgba(0,0,0,.4)}50%{box-shadow:0 0 0 8px rgba(196,98,45,.08),0 3px 12px rgba(0,0,0,.4)}}
+
+@media(max-width:700px){
+  .panel{width:100%;top:auto;height:52vh;border-right:none;border-top:1px solid var(--border)}
+  #map{bottom:52vh}
+  .sp{display:none}
+  .sw{max-width:none}
+}
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="topbar">
+  <a class="logo" href="#">
+    <div class="logo-badge">&#127807;</div>
+    <div class="logo-text">Greenville<em>Guide</em></div>
+  </a>
+  <div class="sw">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="srch" type="text" placeholder="Search restaurants, parks, gyms&#8230;" autocomplete="off">
+  </div>
+  <div class="sp">
+    <button class="sb active" id="btnP" onclick="setSort('proximity')">&#128205; Near Me</button>
+    <button class="sb" id="btnR" onclick="setSort('rating')">&#11088; Top Rated</button>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="stats">
+    <div class="stat-ct"><strong id="ttl">50</strong> businesses in Greater Greenville</div>
+    <div class="stat-mode" id="smode">By proximity</div>
+  </div>
+  <div class="cat-list" id="catList"></div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+const CATS=[
+  {id:"restaurants",name:"Restaurants",em:"&#127869;",photo:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=70"},
+  {id:"fitness",name:"Fitness",em:"&#128170;",photo:"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=70"},
+  {id:"recreation",name:"Recreation",em:"&#127919;",photo:"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600&q=70"},
+  {id:"services",name:"Services",em:"&#128295;",photo:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=70"},
+  {id:"shopping",name:"Shopping",em:"&#128717;",photo:"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=70"},
+  {id:"arts",name:"Arts & Culture",em:"&#127917;",photo:"https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=70"}
+];
+
+const BIZ=[
+  {id:1,name:"Soby's New South Cuisine",cat:"restaurants",sub:"Southern Fine Dining",addr:"207 S Main St",lat:34.8414,lng:-82.3985,r:4.7,rc:1243,desc:"Upscale Southern cooking with locally sourced ingredients in a stylish historic downtown setting.",ph:"(864) 232-7007",hrs:"Tue-Sun 5-10pm"},
+  {id:2,name:"Tupelo Honey",cat:"restaurants",sub:"Southern Brunch",addr:"1 N Main St",lat:34.8478,lng:-82.3999,r:4.4,rc:876,desc:"Farm-to-table Southern comfort food beloved for brunch, with scratch-made biscuits.",ph:"(864) 242-6789",hrs:"Daily 9am-9pm"},
+  {id:3,name:"Nose Dive",cat:"restaurants",sub:"American Gastropub",addr:"116 S Main St",lat:34.8428,lng:-82.3990,r:4.5,rc:1052,desc:"American gastropub with craft cocktails, elevated pub fare, and a lively downtown atmosphere.",ph:"(864) 373-7300",hrs:"Daily 11am-11pm"},
+  {id:4,name:"Rick Erwin's West End Grille",cat:"restaurants",sub:"Steakhouse",addr:"707 E North St",lat:34.8521,lng:-82.3931,r:4.6,rc:789,desc:"Classic steakhouse with prime cuts, fresh seafood, and an extensive wine list.",ph:"(864) 232-5000",hrs:"Mon-Sat 5-10pm"},
+  {id:5,name:"Jianna",cat:"restaurants",sub:"Italian",addr:"5 S Main St",lat:34.8455,lng:-82.3996,r:4.8,rc:934,desc:"Sophisticated Italian cuisine featuring handmade pastas and wood-fired dishes.",ph:"(864) 757-3433",hrs:"Tue-Sun 5-10pm"},
+  {id:6,name:"Mellow Mushroom",cat:"restaurants",sub:"Pizza",addr:"125 S Main St",lat:34.8422,lng:-82.3988,r:4.2,rc:1120,desc:"Funky pizzeria known for creative stone-baked pies, hoagies, and craft beers on tap.",ph:"(864) 232-3555",hrs:"Daily 11am-11pm"},
+  {id:7,name:"Swamp Rabbit Cafe",cat:"restaurants",sub:"Cafe & Market",addr:"205 Cedar Lane Rd",lat:34.8595,lng:-82.4234,r:4.6,rc:782,desc:"Beloved local cafe along the Swamp Rabbit Trail with coffee, baked goods, and local groceries.",ph:"(864) 420-1029",hrs:"Daily 7am-8pm"},
+  {id:8,name:"Tandem Creperie",cat:"restaurants",sub:"Cafe & Breakfast",addr:"4 W Coffee St",lat:34.8476,lng:-82.4011,r:4.7,rc:563,desc:"Artisan creperie and coffee shop in the West End. Perfect sweet or savory brunch crepes.",ph:"(864) 509-6535",hrs:"Wed-Mon 8am-3pm"},
+  {id:9,name:"Halls Chophouse",cat:"restaurants",sub:"Steakhouse",addr:"101 W Washington St",lat:34.8486,lng:-82.4009,r:4.9,rc:1567,desc:"Legendary steakhouse known for USDA Prime beef, impeccable service, and a buzzing bar scene.",ph:"(864) 232-9000",hrs:"Mon-Sat 4-10pm"},
+  {id:10,name:"Takosushi",cat:"restaurants",sub:"Asian Fusion",addr:"621 S Main St",lat:34.8378,lng:-82.3984,r:4.4,rc:698,desc:"Creative Asian-Mexican fusion with inventive tacos, fresh sushi rolls, and handcrafted cocktails.",ph:"(864) 232-7000",hrs:"Daily 11am-10pm"},
+  {id:11,name:"Smoke on the Water",cat:"restaurants",sub:"BBQ & Seafood",addr:"1 Augusta St",lat:34.8468,lng:-82.4068,r:4.5,rc:1045,desc:"Iconic riverside restaurant with Reedy River views, smoked BBQ and fresh seafood.",ph:"(864) 232-9091",hrs:"Daily 11am-10pm"},
+  {id:12,name:"Sassafras Southern Bistro",cat:"restaurants",sub:"Southern",addr:"9 S Main St",lat:34.8460,lng:-82.3997,r:4.3,rc:654,desc:"Cozy bistro serving modern takes on Southern classics with an emphasis on local farms.",ph:"(864) 255-7750",hrs:"Tue-Sun 11am-9pm"},
+  {id:13,name:"Pho Saigon",cat:"restaurants",sub:"Vietnamese",addr:"250 Congaree Rd",lat:34.8312,lng:-82.3672,r:4.5,rc:387,desc:"Authentic Vietnamese restaurant beloved for rich pho broths, banh mi, and bun dishes.",ph:"(864) 297-8888",hrs:"Daily 10am-9pm"},
+  {id:14,name:"Texas Roadhouse",cat:"restaurants",sub:"American",addr:"1005 Woodruff Rd",lat:34.8219,lng:-82.3421,r:4.3,rc:2134,desc:"Family-friendly steakhouse with fall-off-the-bone ribs and hand-cut steaks.",ph:"(864) 297-0999",hrs:"Daily 11am-11pm"},
+  {id:15,name:"Chicora Alley",cat:"restaurants",sub:"American Casual",addr:"107 S Main St",lat:34.8430,lng:-82.3989,r:4.3,rc:445,desc:"Tucked in a charming downtown alley: casual bites, fresh salads, and cocktails.",ph:"(864) 232-7760",hrs:"Mon-Sat 11am-10pm"},
+  {id:16,name:"Iron Tribe Fitness",cat:"fitness",sub:"CrossFit & HIIT",addr:"701 S Main St",lat:34.8370,lng:-82.3983,r:4.8,rc:312,desc:"High-energy group fitness studio with certified coaches offering CrossFit-inspired workouts.",ph:"(864) 520-5200",hrs:"Mon-Fri 5am-8pm"},
+  {id:17,name:"Planet Fitness Woodruff",cat:"fitness",sub:"Gym",addr:"1431 Woodruff Rd",lat:34.8226,lng:-82.3308,r:4.1,rc:876,desc:"Judgment-free zone gym with cardio equipment, strength machines, and a black card spa.",ph:"(864) 627-3660",hrs:"Open 24/7"},
+  {id:18,name:"The Yoga Studio Greenville",cat:"fitness",sub:"Yoga",addr:"135 S Main St",lat:34.8420,lng:-82.3988,r:4.7,rc:234,desc:"Welcoming downtown yoga studio offering Hatha, Vinyasa, Yin, and restorative classes.",ph:"(864) 232-9642",hrs:"Daily 6am-8pm"},
+  {id:19,name:"YMCA Downtown",cat:"fitness",sub:"Community Gym",addr:"200 E Washington St",lat:34.8495,lng:-82.3978,r:4.4,rc:543,desc:"Full-service YMCA with indoor pool, weight room, group fitness classes, and youth programming.",ph:"(864) 232-9622",hrs:"Mon-Fri 5:30am-10pm"},
+  {id:20,name:"Orangetheory Fitness",cat:"fitness",sub:"Interval Training",addr:"610 Haywood Rd",lat:34.8348,lng:-82.3691,r:4.6,rc:421,desc:"Science-backed heart rate interval training studio with rowing, treadmills, and strength zones.",ph:"(864) 214-7778",hrs:"Daily 5am-8pm"},
+  {id:21,name:"Anytime Fitness",cat:"fitness",sub:"Gym",addr:"831 S Pleasantburg Dr",lat:34.8305,lng:-82.3891,r:4.3,rc:298,desc:"24/7 access gym with cardio, free weights, private showers, and personal training.",ph:"(864) 672-1180",hrs:"Open 24/7"},
+  {id:22,name:"CorePower Yoga",cat:"fitness",sub:"Yoga",addr:"202 E Camperdown Way",lat:34.8462,lng:-82.3980,r:4.5,rc:178,desc:"Premium yoga studio offering hot yoga, sculpt, and meditation classes in a modern environment.",ph:"(864) 252-3090",hrs:"Daily 6am-9pm"},
+  {id:23,name:"Falls Park on the Reedy",cat:"recreation",sub:"City Park",addr:"601 S Main St",lat:34.8398,lng:-82.4000,r:4.9,rc:4231,desc:"Iconic 32-acre park featuring the Liberty Bridge suspension footbridge and Reedy River Falls.",ph:"(864) 467-4355",hrs:"Daily 6am-11pm"},
+  {id:24,name:"Swamp Rabbit Trail",cat:"recreation",sub:"Greenway Trail",addr:"Linky Stone Park",lat:34.8601,lng:-82.4220,r:4.8,rc:3102,desc:"22-mile paved multi-use trail connecting Greenville to Travelers Rest through beautiful scenery.",ph:"(864) 467-4355",hrs:"Daily sunrise-sunset"},
+  {id:25,name:"Fluor Field",cat:"recreation",sub:"Baseball Stadium",addr:"945 S Main St",lat:34.8354,lng:-82.3994,r:4.7,rc:1876,desc:"Minor league ballpark home to the Greenville Drive. A miniature Fenway Park experience.",ph:"(864) 240-4500",hrs:"Game days only"},
+  {id:26,name:"Paris Mountain State Park",cat:"recreation",sub:"State Park & Hiking",addr:"2401 State Park Rd",lat:34.9044,lng:-82.3608,r:4.7,rc:1432,desc:"Beautiful park with miles of hiking trails, swimming lakes, and picnic areas near downtown.",ph:"(864) 244-5565",hrs:"Daily 8am-6pm"},
+  {id:27,name:"Topgolf Greenville",cat:"recreation",sub:"Entertainment & Golf",addr:"135 Verdae Blvd",lat:34.8198,lng:-82.3487,r:4.5,rc:987,desc:"Multi-level golf entertainment venue with climate-controlled bays, food, drinks, and gameplay.",ph:"(864) 603-4653",hrs:"Daily 10am-12am"},
+  {id:28,name:"Children's Museum of the Upstate",cat:"recreation",sub:"Family Attraction",addr:"300 College St",lat:34.8510,lng:-82.4024,r:4.6,rc:1243,desc:"Award-winning interactive museum with hands-on exhibits, a working farm, and STEAM activities.",ph:"(864) 233-7755",hrs:"Tue-Sat 9am-5pm"},
+  {id:29,name:"Defy Greenville Trampoline Park",cat:"recreation",sub:"Indoor Entertainment",addr:"611 Haywood Rd",lat:34.8345,lng:-82.3692,r:4.4,rc:678,desc:"High-flying trampoline park with open jump, dodgeball, foam pits, and ninja courses.",ph:"(864) 751-0700",hrs:"Daily 10am-9pm"},
+  {id:30,name:"Roper Mountain Science Center",cat:"recreation",sub:"Science & Planetarium",addr:"402 Roper Mountain Rd",lat:34.8368,lng:-82.3198,r:4.5,rc:543,desc:"Science center with observatory, planetarium shows, nature trails, and STEM exhibits.",ph:"(864) 355-8900",hrs:"Fri 2-5pm, Starry Nights Fri 7-10pm"},
+  {id:31,name:"Lake Conestee Nature Park",cat:"recreation",sub:"Nature Preserve",addr:"840 Mauldin Rd",lat:34.8178,lng:-82.3887,r:4.6,rc:765,desc:"267-acre urban nature preserve with scenic river trails, excellent birding, and wildlife viewing.",ph:"(864) 277-2004",hrs:"Daily 7am-7pm"},
+  {id:32,name:"Haynsworth Sinkler Boyd",cat:"services",sub:"Legal Services",addr:"75 Beattie Place",lat:34.8492,lng:-82.4003,r:4.5,rc:87,desc:"One of South Carolina's oldest law firms, serving businesses and individuals since 1888.",ph:"(864) 240-3200",hrs:"Mon-Fri 8:30am-5:30pm"},
+  {id:33,name:"Prisma Health Greenville",cat:"services",sub:"Medical Center",addr:"701 Grove Rd",lat:34.8277,lng:-82.3984,r:4.2,rc:1234,desc:"Major regional hospital and trauma center offering comprehensive medical care.",ph:"(864) 455-7000",hrs:"Open 24/7"},
+  {id:34,name:"Palmetto Financial Partners",cat:"services",sub:"Financial Planning",addr:"220 N Main St",lat:34.8500,lng:-82.3998,r:4.6,rc:64,desc:"Independent financial planning firm helping clients build wealth with personalized strategies.",ph:"(864) 233-4500",hrs:"Mon-Fri 9am-5pm"},
+  {id:35,name:"Midas Auto Service",cat:"services",sub:"Automotive",addr:"1826 S Pleasantburg Dr",lat:34.8198,lng:-82.3878,r:4.1,rc:312,desc:"Full-service auto repair shop: brakes, oil changes, tires, exhaust, and fleet maintenance.",ph:"(864) 271-1175",hrs:"Mon-Fri 8am-6pm"},
+  {id:36,name:"Sullivan's Pest Solutions",cat:"services",sub:"Home Services",addr:"3200 Augusta St",lat:34.8135,lng:-82.3921,r:4.7,rc:412,desc:"Local pest control with residential extermination, termite treatment, and wildlife removal.",ph:"(864) 801-0950",hrs:"Mon-Fri 8am-5pm"},
+  {id:37,name:"H&R Block Downtown",cat:"services",sub:"Tax Services",addr:"100 N Main St",lat:34.8489,lng:-82.3999,r:4.2,rc:156,desc:"Full-service tax preparation office with year-round support and financial services.",ph:"(864) 232-1730",hrs:"Mon-Fri 9am-6pm"},
+  {id:38,name:"Upstate Veterinary Specialists",cat:"services",sub:"Veterinary",addr:"10 Radcliffe St",lat:34.8540,lng:-82.4055,r:4.8,rc:287,desc:"Compassionate veterinary specialty practice: surgery, oncology, and 24/7 emergency care.",ph:"(864) 233-8711",hrs:"Open 24/7"},
+  {id:39,name:"Haywood Mall",cat:"shopping",sub:"Shopping Mall",addr:"700 Haywood Rd",lat:34.8358,lng:-82.3712,r:4.2,rc:3456,desc:"The Upstate's premier regional mall with 175+ stores including Dillard's and Macy's.",ph:"(864) 288-0511",hrs:"Mon-Sat 10am-9pm"},
+  {id:40,name:"The Shops at Greenridge",cat:"shopping",sub:"Shopping Center",addr:"1125 Woodruff Rd",lat:34.8221,lng:-82.3347,r:4.3,rc:876,desc:"Upscale open-air shopping complex featuring national retailers, boutiques, and specialty stores.",ph:"(864) 297-5534",hrs:"Mon-Sat 10am-9pm"},
+  {id:41,name:"M. Judson Booksellers",cat:"shopping",sub:"Independent Bookstore",addr:"130 S Main St",lat:34.8421,lng:-82.3989,r:4.8,rc:432,desc:"Beloved indie bookstore in a historic building celebrating Southern literature and local authors.",ph:"(864) 603-7399",hrs:"Mon-Sat 10am-8pm"},
+  {id:42,name:"Upcountry Provisions",cat:"shopping",sub:"Specialty Food & Gifts",addr:"619 S Main St",lat:34.8380,lng:-82.3984,r:4.7,rc:189,desc:"Curated Southern provisions shop with artisan foods, gifts, and locally made products.",ph:"(864) 900-9494",hrs:"Tue-Sat 10am-7pm"},
+  {id:43,name:"Whole Foods Market",cat:"shopping",sub:"Grocery",addr:"1140 Woodruff Rd",lat:34.8215,lng:-82.3350,r:4.4,rc:765,desc:"Premium grocery featuring organic produce, local products, fresh-prepared foods, and a wine bar.",ph:"(864) 288-6888",hrs:"Daily 7am-10pm"},
+  {id:44,name:"Simpsonville Flea Market",cat:"shopping",sub:"Flea Market",addr:"6031 Fairview Rd",lat:34.7298,lng:-82.2543,r:4.1,rc:312,desc:"Sprawling weekly flea market with hundreds of vendors selling antiques, produce, and collectibles.",ph:"(864) 963-7100",hrs:"Sat-Sun 7am-4pm"},
+  {id:45,name:"Greenville County Museum of Art",cat:"arts",sub:"Art Museum",addr:"420 College St",lat:34.8504,lng:-82.4025,r:4.6,rc:876,desc:"The Southeast's finest American art collection, renowned for its Andrew Wyeth holdings.",ph:"(864) 271-7570",hrs:"Tue-Sat 10am-5pm"},
+  {id:46,name:"Peace Center for Performing Arts",cat:"arts",sub:"Performance Venue",addr:"300 S Main St",lat:34.8409,lng:-82.3996,r:4.8,rc:2134,desc:"World-class performing arts center hosting Broadway productions, symphonies, and concerts.",ph:"(864) 467-3000",hrs:"Box office Mon-Sat 10am-5pm"},
+  {id:47,name:"The Warehouse Theatre",cat:"arts",sub:"Theater Company",addr:"37 Augusta St",lat:34.8466,lng:-82.4073,r:4.7,rc:354,desc:"Award-winning intimate professional theater producing bold, high-quality productions year-round.",ph:"(864) 235-6948",hrs:"Box office Tue-Sat 12-5pm"},
+  {id:48,name:"Greenville Symphony Orchestra",cat:"arts",sub:"Symphony",addr:"200 S Main St",lat:34.8412,lng:-82.3990,r:4.8,rc:312,desc:"The Upstate's professional symphony orchestra presenting classical masterworks and pops concerts.",ph:"(864) 232-0344",hrs:"See season schedule"},
+  {id:49,name:"Upcountry History Museum",cat:"arts",sub:"History Museum",addr:"540 Buncombe St",lat:34.8534,lng:-82.4045,r:4.5,rc:432,desc:"Smithsonian-affiliated museum exploring the rich history and cultures of the SC Upstate.",ph:"(864) 467-3100",hrs:"Tue-Sat 10am-5pm"},
+  {id:50,name:"Hampton III Gallery",cat:"arts",sub:"Art Gallery",addr:"3110 Wade Hampton Blvd",lat:34.9012,lng:-82.3312,r:4.6,rc:145,desc:"Premier regional art gallery featuring established and emerging artists in all mediums.",ph:"(864) 268-2771",hrs:"Tue-Sat 10am-5pm"}
+];
+
+const COL={restaurants:"#c4622d",fitness:"#5c8a6a",recreation:"#3d7a8a",services:"#c9943a",shopping:"#8a6a3d",arts:"#7a5c8a"};
+let map,uM,mkrs={};
+let uLat=34.8526,uLng=-82.3940;
+let sMode="proximity",q="",aId=null,openCat=null;
+
+function dist(a,b,c,d){const R=3958.8,dL=(c-a)*Math.PI/180,dG=(d-b)*Math.PI/180,x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
+function fmt(n){return n>=1000?(n/1000).toFixed(1)+"k":n}
+function stH(r){let h="<div class='stars'>";for(let i=1;i<=5;i++){h+=r>=i?"<span class='star'>&#9733;</span>":r>=i-.5?"<span class='star half'>&#9733;</span>":"<span class='star empty'>&#9733;</span>";}return h+"</div>"}
+function pu(b){const d=dist(uLat,uLng,b.lat,b.lng);return"<div class='pu'><div class='pu-name'>"+b.name+"</div><div class='pu-cat'>"+b.sub+"</div><div class='pu-row'>"+stH(b.r)+" "+b.r+" ("+fmt(b.rc)+" reviews)</div><div class='pu-row'>&#128205; "+b.addr+"</div><div class='pu-row'>&#128222; "+b.ph+"</div><div class='pu-hrs'>&#x1F550; "+b.hrs+"</div><div class='pu-dist'>"+d.toFixed(1)+" mi away</div></div>"}
+
+function initMap(){
+  map=L.map("map",{center:[34.8526,-82.3940],zoom:13,zoomControl:false});
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; <a href='https://openstreetmap.org/copyright'>OpenStreetMap</a>",maxZoom:19}).addTo(map);
+  L.control.zoom({position:"bottomright"}).addTo(map);
+  uM=L.marker([uLat,uLng],{draggable:true,icon:L.divIcon({className:"",html:"<div class='user-dot'></div>",iconSize:[14,14],iconAnchor:[7,7]}),zIndexOffset:1000}).addTo(map);
+  uM.bindPopup("<div class='pu'><div class='pu-name'>&#128205; You Are Here</div><div class='pu-hrs'>Drag to reposition. Distances update automatically.</div></div>");
+  uM.on("dragend",e=>{const p=e.target.getLatLng();uLat=p.lat;uLng=p.lng;BIZ.forEach(b=>{if(mkrs[b.id])mkrs[b.id].setPopupContent(pu(b))});renderAll();toast("&#10003; Location updated")});
+  BIZ.forEach(b=>{
+    const col=COL[b.cat]||"#5c8a6a";
+    const m=L.marker([b.lat,b.lng],{icon:L.divIcon({className:"",html:"<div class='m-dot' style='background:"+col+"'></div>",iconSize:[11,11],iconAnchor:[5,5]}),title:b.name}).addTo(map).bindPopup(pu(b));
+    m.on("click",()=>{setAct(b.id);openCatFn(b.cat);sToBiz(b.id)});
+    mkrs[b.id]=m;
+  });
+  setTimeout(()=>document.getElementById("toast").classList.add("hidden"),4000);
+}
+
+function setSort(mode){
+  sMode=mode;
+  document.getElementById("btnP").classList.toggle("active",mode==="proximity");
+  document.getElementById("btnR").classList.toggle("active",mode==="rating");
+  document.getElementById("smode").textContent=mode==="proximity"?"By proximity":"By rating";
+  renderAll();
+}
+
+function getFilt(catId){
+  let list=BIZ.filter(b=>b.cat===catId);
+  if(q)list=list.filter(b=>b.name.toLowerCase().includes(q)||b.sub.toLowerCase().includes(q)||b.desc.toLowerCase().includes(q));
+  list=list.map(b=>({...b,d:dist(uLat,uLng,b.lat,b.lng)}));
+  if(sMode==="proximity")list.sort((a,b)=>a.d-b.d);
+  else list.sort((a,b)=>(b.r*Math.log(b.rc+1))-(a.r*Math.log(a.rc+1)));
+  return list;
+}
+
+function renderAll(){
+  let tot=0;
+  CATS.forEach(cat=>{
+    const items=getFilt(cat.id);
+    tot+=items.length;
+    const sec=document.getElementById("sec-"+cat.id);if(!sec)return;
+    const inner=sec.querySelector(".cards-in");
+    const ct=sec.querySelector(".cat-ct");
+    if(ct)ct.textContent="("+items.length+")";
+    inner.innerHTML=items.length===0
+      ?"<div class='cat-empty'>No results in this category</div>"
+      :items.map(b=>"<div class='biz"+(b.id===aId?" active":"")+"' id='biz-"+b.id+"' onclick='bizClick("+b.id+")'><div class='biz-top'><div class='biz-nm'>"+b.name+"</div><div class='biz-stars'>"+stH(b.r)+"<span class='r-n'>"+b.r+"</span></div></div><div class='biz-sub'>"+b.sub+"</div><div class='biz-desc'>"+b.desc+"</div><div class='biz-foot'><div class='biz-addr'>&#128205; "+b.addr+"</div><span class='biz-dist'>"+b.d.toFixed(1)+" mi</span></div></div>").join("");
+  });
+  document.getElementById("ttl").textContent=q?tot:"50";
+}
+
+function buildHTML(){
+  document.getElementById("catList").innerHTML=CATS.map(cat=>`
+    <div class="cat-sec" id="sec-${cat.id}">
+      <div class="cat-hdr" onclick="togCat('${cat.id}')">
+        <div class="cat-bg" style="background-image:url('${cat.photo}')"></div>
+        <div class="cat-inner">
+          <div class="cat-lbl">
+            <span class="cat-em">${cat.em}</span>
+            <span class="cat-nm">${cat.name}</span>
+            <span class="cat-ct">(${BIZ.filter(b=>b.cat===cat.id).length})</span>
+          </div>
+          <svg class="chev" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="cat-cards" id="cc-${cat.id}">
+        <div class="cards-in"></div>
+      </div>
+    </div>`).join("");
+  renderAll();
+}
+
+function togCat(id){
+  const hdr=document.querySelector("#sec-"+id+" .cat-hdr");
+  const cc=document.getElementById("cc-"+id);
+  const wasOpen=cc.classList.contains("open");
+  CATS.forEach(c=>{document.querySelector("#sec-"+c.id+" .cat-hdr").classList.remove("open");document.getElementById("cc-"+c.id).classList.remove("open")});
+  if(!wasOpen){
+    hdr.classList.add("open");cc.classList.add("open");openCat=id;
+    BIZ.forEach(b=>{if(mkrs[b.id])mkrs[b.id].setOpacity(b.cat===id?1:.18)});
+  } else {
+    openCat=null;
+    BIZ.forEach(b=>{if(mkrs[b.id])mkrs[b.id].setOpacity(1)});
+  }
+}
+
+function openCatFn(id){if(!document.getElementById("cc-"+id).classList.contains("open"))togCat(id)}
+
+function bizClick(id){
+  setAct(id);
+  const b=BIZ.find(x=>x.id===id);
+  if(b){map.flyTo([b.lat,b.lng],15,{duration:0.8});setTimeout(()=>mkrs[id]?.openPopup(),900)}
+}
+
+function setAct(id){
+  if(aId){document.getElementById("biz-"+aId)?.classList.remove("active");mkrs[aId]?._icon?.querySelector(".m-dot")?.classList.remove("big")}
+  aId=id;
+  document.getElementById("biz-"+id)?.classList.add("active");
+  mkrs[id]?._icon?.querySelector(".m-dot")?.classList.add("big");
+}
+
+function sToBiz(id){setTimeout(()=>document.getElementById("biz-"+id)?.scrollIntoView({behavior:"smooth",block:"nearest"}),380)}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.remove("hidden");setTimeout(()=>t.classList.add("hidden"),2800)}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("srch").addEventListener("input",e=>{
+    q=e.target.value.toLowerCase().trim();
+    renderAll();
+    if(q)CATS.forEach(c=>{if(getFilt(c.id).length>0)openCatFn(c.id)});
+  });
+  initMap();
+  buildHTML();
+  toast("&#128205; Drag the orange pin to update your location");
+  if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{uLat=p.coords.latitude;uLng=p.coords.longitude;uM.setLatLng([uLat,uLng]);map.flyTo([uLat,uLng],13,{duration:1});renderAll();toast("Using your real location!")},()=>{});
+});
+</script>
+</body>
+</html>
