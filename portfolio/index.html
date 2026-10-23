@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow">
-<title>Dane Bonnigson for Sonos Care</title>
-<meta name="description" content="Dane Bonnigson: resume and portfolio for Senior Manager, Knowledge Engineering & AI Agent Enablement at Sonos.">
+<title>Dane Bonnigson · AI Portfolio</title>
+<meta name="description" content="Dane Bonnigson: people leader and AI builder. Finished AI products, the problems they solved, and how he keeps AI accurate.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -93,6 +92,14 @@ h2{font-size:clamp(32px,5vw,46px);line-height:1.1;margin-bottom:12px}
 .principle h3{font-family:var(--sans);font-weight:800;font-size:18px;margin-bottom:6px}
 .principle p{color:var(--muted);font-size:15px}
 
+/* timeline */
+.roles{display:grid;gap:12px}
+.role{display:grid;grid-template-columns:200px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--rule)}
+.role:last-child{border-bottom:none}
+.role .when{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--mint)}
+.role h3{font-family:var(--sans);font-weight:800;font-size:19px}
+.role p{color:var(--muted);font-size:16px;margin-top:4px}
+@media(max-width:720px){.role{grid-template-columns:1fr;gap:4px}}
 /* plan */
 .plan{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .phase{border:1px solid var(--card-border);border-radius:18px;padding:28px;background:var(--ground)}
@@ -115,30 +122,28 @@ footer a{color:var(--faint)}
 </style>
 </head>
 <body>
-
 <header class="topbar">
   <div class="container">
     <a class="brand" href="/">Dane Bonnigson</a>
     <ul class="nav">
-      <li><a href="#fit">The fit</a></li>
+      <li><a href="#bring">What I bring</a></li>
       <li><a href="#work">The work</a></li>
       <li><a href="#guardrails">Guardrails</a></li>
-      <li><a href="#plan">First 90 days</a></li>
+      <li><a href="#experience">Experience</a></li>
       <li><a class="btn btn-primary btn-sm" href="#contact">Resume</a></li>
     </ul>
   </div>
 </header>
-
 <main>
 <section class="hero">
   <div class="container">
     <img class="photo" src="/photo.jpg" alt="Dane Bonnigson">
-    <span class="eyebrow">Prepared for Sonos Care · Care Enablement &amp; Services</span>
-    <h1>Knowledge agents can trust.<br>Teams that use it.</h1>
-    <p class="tagline">Senior Manager, Knowledge Engineering &amp; AI Agent Enablement</p>
-    <p class="hero-lead">I lead people and I build AI. As a principal I took a full staff from 0% to 86% daily AI use. Since then I've shipped AI products that are in use today. They hand uncertain cases to a person, run checks before anything goes out, and tie their answers to sources.</p>
+    <span class="eyebrow">AI portfolio · Taylors, SC</span>
+    <h1>AI that people actually use.</h1>
+    <p class="tagline">People leader, AI builder, Tech Translator</p>
+    <p class="hero-lead">As a principal I took a full staff from 0% to 86% daily AI use in 15 months. Since 2025 I've built AI products that are in use today. They hand uncertain cases to a person, run checks before anything goes out, and tie their answers to sources.</p>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="Dane_Bonnigson_Resume_Sonos.pdf">Download resume</a>
+      <a class="btn btn-primary" href="Dane_Bonnigson_Resume.pdf">Download resume</a>
       <a class="btn btn-outline" href="#work">See the work</a>
     </div>
   </div>
@@ -153,23 +158,23 @@ footer a{color:var(--faint)}
   </div>
 </section>
 
-<section id="fit">
+<section id="bring">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">The fit</span>
-      <h2>The role, mapped to work I've done</h2>
-      <p>Each line pairs a part of the posting with something I've built or led.</p>
+      <span class="eyebrow">What I bring</span>
+      <h2>Technology people adopt, and AI they can trust</h2>
+      <p>Each line pairs a skill with something I've built or led.</p>
     </div>
     <div class="map">
-      <div class="map-row"><div class="map-ask"><small>Agents</small>Escalation paths and human review</div><div class="map-proof"><strong>Decision Desk.</strong> My AI screening agent scores each lead and reports how confident it is. Code makes the final call, and low-confidence cases go to a person.</div></div>
+      <div class="map-row"><div class="map-ask"><small>Adoption</small>Getting people to use new tools</div><div class="map-proof"><strong>0% to 86% daily AI use in 15 months,</strong> saving the staff 12+ hours a week combined. I built and shared AI tools with teachers and made the case for AI use to upper administration.</div></div>
+      <div class="map-row"><div class="map-ask"><small>AI agents</small>Knowing when to hand off to a person</div><div class="map-proof"><strong>Decision Desk.</strong> My AI screening agent scores each lead and reports how confident it is. Code makes the final call, and low-confidence cases go to a person.</div></div>
       <div class="map-row"><div class="map-ask"><small>Quality</small>Checks before anything ships</div><div class="map-proof"><strong>EDITRON.</strong> My AI video editor runs loudness and render checks on its output, and nothing posts until a person reviews it.</div></div>
-      <div class="map-row"><div class="map-ask"><small>Knowledge</small>Answers grounded in trusted sources</div><div class="map-proof"><strong>Every claim gets a source.</strong> Client safety courses are checked against OSHA 29 CFR 1910.157(g) and 1910.38. Every finding in client research is sourced.</div></div>
-      <div class="map-row"><div class="map-ask"><small>Governance</small>Guardrails on AI behavior</div><div class="map-proof"><strong>Rules built into the tool.</strong> EDITRON can only touch one folder and blurs bystanders' faces automatically. In Decision Desk, the model makes narrow judgments and code decides.</div></div>
-      <div class="map-row"><div class="map-ask"><small>Product</small>Product ownership and releases</div><div class="map-proof"><strong>20+ releases of EDITRON</strong> and 3 iPhone apps shipped to the App Store, each one carried from idea to a working product.</div></div>
-      <div class="map-row"><div class="map-ask"><small>Adoption</small>Change management for new tools</div><div class="map-proof"><strong>0% to 86% daily AI use in 15 months,</strong> saving staff 12+ hours a week. I built and shared AI tools with teachers and made the case for AI use to upper administration.</div></div>
-      <div class="map-row"><div class="map-ask"><small>Metrics</small>KPIs and reporting</div><div class="map-proof"><strong>Dashboards people act on.</strong> I built a live Excel dashboard that showed stakeholders student progress in real time, and an accountability system with 99.98% completion across 86,779 assignments.</div></div>
-      <div class="map-row"><div class="map-ask"><small>People</small>Hire, coach and develop a team</div><div class="map-proof"><strong>8 years leading staff.</strong> I led a school as principal and supervised the grading teachers for a virtual academy that grew from 100 to 1,000 students.</div></div>
-      <div class="map-row"><div class="map-ask"><small>Communication</small>Explaining technical decisions to non-technical people</div><div class="map-proof"><strong>The Tech Translator.</strong> I've spent 21 years in schools explaining technology to the people expected to use it, from classrooms to upper administration.</div></div>
+      <div class="map-row"><div class="map-ask"><small>Accuracy</small>Answers grounded in trusted sources</div><div class="map-proof"><strong>Every claim gets a source.</strong> Client safety courses are checked against OSHA 29 CFR 1910.157(g) and 1910.38. Every finding in client research is sourced.</div></div>
+      <div class="map-row"><div class="map-ask"><small>Product</small>Ownership from idea to release</div><div class="map-proof"><strong>20+ releases of EDITRON</strong> and 3 iPhone apps shipped to the App Store.</div></div>
+      <div class="map-row"><div class="map-ask"><small>Data</small>Dashboards people act on</div><div class="map-proof"><strong>99.98% completion across 86,779 assignments</strong> with a school-wide tracking system, and a live Excel dashboard that showed stakeholders student progress in real time.</div></div>
+      <div class="map-row"><div class="map-ask"><small>Turnaround</small>Results under pressure</div><div class="map-proof"><strong>Bottom 5% to state average in two years</strong> on the Ohio School Report Cards; state test scores up 18%; student failure rates down 67%.</div></div>
+      <div class="map-row"><div class="map-ask"><small>People</small>Leading and developing a team</div><div class="map-proof"><strong>8 years leading staff.</strong> I led a school as principal and supervised the grading teachers for a virtual academy that grew from 100 to 1,000 students.</div></div>
+      <div class="map-row"><div class="map-ask"><small>Communication</small>Explaining technology in plain language</div><div class="map-proof"><strong>The Tech Translator.</strong> 21 years in schools explaining technology to the people expected to use it, from classrooms to upper administration.</div></div>
     </div>
   </div>
 </section>
@@ -222,9 +227,11 @@ footer a{color:var(--faint)}
         <span class="label">Adoption</span>
         <h3>Staff AI adoption</h3>
         <p><strong>Problem:</strong> staff at a bottom-5% school weren't using AI at all.</p>
-        <p class="solved"><strong>Solved:</strong> daily AI use went from 0% to 86% in 15 months, saving 12+ hours a week. Over the same two years, the school climbed to the state average.</p>
+        <p class="solved"><strong>Solved:</strong> daily AI use went from 0% to 86% in 15 months, saving the staff 12+ hours a week combined. Over the same two years, the school climbed from the bottom 5% to the state average on the Ohio School Report Cards.</p>
       </article>
     </div>
+  </div>
+
   </div>
 </section>
 
@@ -233,7 +240,7 @@ footer a{color:var(--faint)}
     <div class="section-head">
       <span class="eyebrow">Guardrails</span>
       <h2>How I keep AI accurate</h2>
-      <p>The rules I build into every AI tool. They're where I'd start on the agent standards this role sets.</p>
+      <p>The rules I build into every AI tool.</p>
     </div>
     <div class="principles">
       <div class="principle"><h3>Every claim gets a source</h3><p>Answers come from verified material, not the model's memory.</p></div>
@@ -246,20 +253,24 @@ footer a{color:var(--faint)}
       <div class="principle"><h3>Rules live in the tool</h3><p>OSHA citations and face blurring are built in, not left to memory.</p></div>
     </div>
   </div>
+
+  </div>
 </section>
 
-<section id="plan" class="band">
+<section id="experience" class="band">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">First 90 days</span>
-      <h2>Where I'd start</h2>
-      <p>A first pass, to be reshaped by what the team and the Director, CX Product already know.</p>
+      <span class="eyebrow">Experience</span>
+      <h2>Where the work came from</h2>
     </div>
-    <div class="plan">
-      <div class="phase"><div class="when">Days 1–30</div><h3>Listen and learn</h3><ul><li>Meet everyone on both teams and learn what's working and what's stuck</li><li>Learn the stack: Service Cloud, Agentforce, Confluence, Bedrock, and how KCS runs today</li><li>Record baselines for containment, resolution accuracy, escalation rate and CSAT</li></ul></div>
-      <div class="phase"><div class="when">Days 31–60</div><h3>Find the gaps</h3><ul><li>Trace the worst agent misses back to the knowledge behind them</li><li>Agree on one scorecard for knowledge quality and agent quality</li><li>Build one prioritized backlog across both teams</li></ul></div>
-      <div class="phase"><div class="when">Days 61–90</div><h3>Ship and show</h3><ul><li>Fix the top knowledge gaps and add tests that guard them</li><li>Tighten escalation and launch sign-off rules for agents</li><li>Report results to Support leadership in plain language</li></ul></div>
+    <div class="roles">
+      <div class="role"><div class="when">Aug 2025 – Present</div><div><h3>Founder, AI and Business Consulting · PalmettoGroup.AI</h3><p>AI agents, AI products, client training and research.</p></div></div>
+      <div class="role"><div class="when">Jul 2023 – Aug 2025</div><div><h3>Principal · Western Reserve Middle School, Collins, OH</h3><p>AI adoption, school turnaround, tracking systems, IXL rollout, district-wide master schedule.</p></div></div>
+      <div class="role"><div class="when">Jul 2017 – Jun 2023</div><div><h3>Virtual Learning Academy Coordinator · Woodmore Schools, Elmore, OH</h3><p>Scaled online learning from 100 to 1,000 students; supervised graders; graduation above 93% every year.</p></div></div>
+      <div class="role"><div class="when">2004 – 2017</div><div><h3>Teacher · Woodmore Schools, Elmore, OH</h3><p>20+ courses; taught HTML, CSS, Python and Adobe Creative Suite.</p></div></div>
+      <div class="role"><div class="when">Oct 2017 – May 2022</div><div><h3>Co-Founder &amp; Head of Go-to-Market · The Dogwood Company</h3><p>Market research, positioning, pricing and retail contracts for a skincare line.</p></div></div>
     </div>
+    <p style="color:var(--muted);margin-top:20px">MBA and M.Ed. in Classroom Technology (Computer Science endorsement), Bowling Green State University.</p>
   </div>
 </section>
 
@@ -268,7 +279,7 @@ footer a{color:var(--faint)}
     <div>
       <span class="eyebrow">Resume</span>
       <h2>Let's talk</h2>
-      <p>The one-page resume has every role, number and certification.</p>
+      <p>Based in Taylors, SC (Greenville area). Open to remote or Greenville-area roles.</p>
       <div class="contact-links">
         <a href="mailto:dbonnigson@gmail.com">dbonnigson@gmail.com</a>
         <a href="tel:+14196565760">(419) 656-5760</a>
@@ -276,13 +287,12 @@ footer a{color:var(--faint)}
       </div>
     </div>
     <div class="contact-actions">
-      <a class="btn btn-primary btn-lg" href="Dane_Bonnigson_Resume_Sonos.pdf">Resume (PDF)</a>
-      <a class="btn btn-outline btn-lg" href="Dane_Bonnigson_Resume_Sonos.docx">Resume (Word)</a>
+      <a class="btn btn-primary btn-lg" href="Dane_Bonnigson_Resume.pdf">Resume (PDF)</a>
+      <a class="btn btn-outline btn-lg" href="Dane_Bonnigson_Resume.docx">Resume (Word)</a>
     </div>
   </div>
 </section>
 </main>
-
 <footer><div class="container"><span>© 2026 Dane Bonnigson</span><a href="/">danebonnigson.com</a></div></footer>
 </body>
 </html>
