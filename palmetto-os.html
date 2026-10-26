@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palmetto OS — Business Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c0f;
+  --bg2: #111418;
+  --bg3: #181c22;
+  --bg4: #1f242c;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8eaed;
+  --text2: #8a9099;
+  --text3: #545c6b;
+  --accent: #00e5a0;
+  --accent2: #00b87d;
+  --accentbg: rgba(0,229,160,0.08);
+  --accentbg2: rgba(0,229,160,0.15);
+  --blue: #4d9fff;
+  --bluebg: rgba(77,159,255,0.08);
+  --amber: #ffb84d;
+  --amberbg: rgba(255,184,77,0.08);
+  --red: #ff5f5f;
+  --redbg: rgba(255,95,95,0.08);
+  --purple: #a78bfa;
+  --purplebg: rgba(167,139,250,0.08);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --sidebar-w: 220px;
+  --header-h: 52px;
+  --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* LAYOUT */
+#app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+/* SIDEBAR */
+#sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.sidebar-logo {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.logo-mark {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+.logo-sub {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  margin-top: 1px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
+.sidebar-nav::-webkit-scrollbar { width: 3px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.nav-section-label {
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 14px 18px 4px;
+  font-family: 'DM Mono', monospace;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 18px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 400;
+  transition: all var(--transition);
+  border-radius: 0;
+  position: relative;
+}
+.nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.nav-item.active {
+  background: var(--accentbg);
+  color: var(--accent);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+.nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.sidebar-footer {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* MAIN AREA */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* TOP BAR */
+#topbar {
+  height: var(--header-h);
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  flex: 1;
+}
+.topbar-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+}
+.topbar-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text2);
+  font-size: 12px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: 'DM Sans', sans-serif;
+}
+.topbar-btn:hover { background: var(--bg4); color: var(--text); border-color: var(--accent); }
+.topbar-btn.accent { background: var(--accentbg); color: var(--accent); border-color: var(--accent2); }
+
+/* CONTENT AREA */
+#content { flex: 1; overflow: hidden; display: flex; }
+.view { display: none; flex: 1; overflow: hidden; }
+.view.active { display: flex; flex-direction: column; }
+
+/* SCROLLABLE INNER */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.scroll-area::-webkit-scrollbar { width: 4px; }
+.scroll-area::-webkit-scrollbar-track { background: transparent; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* CARDS & COMPONENTS */
+.card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.card-sm {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+.section-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* SKILL CARDS */
+.skills-section { margin-bottom: 24px; }
+.skills-section-title {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+
+.skill-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.skill-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent-color, var(--accent));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.skill-card:hover {
+  background: var(--bg4);
+  border-color: var(--border2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.skill-card:hover::before { opacity: 1; }
+.skill-card:active { transform: translateY(0); }
+
+.skill-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+.skill-desc {
+  font-size: 11px;
+  color: var(--text3);
+  line-height: 1.4;
+}
+.skill-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  font-size: 12px;
+  transition: all var(--transition);
+}
+.skill-card:hover .skill-arrow {
+  color: var(--accent);
+  transform: translateY(-50%) translateX(2px);
+}
+
+/* DASHBOARD GRID */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.dashboard-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.metric-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-color, var(--accent)), transparent);
+  opacity: 0.3;
+}
+.metric-label {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 8px;
+}
+.metric-value {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--text);
+  line-height: 1;
+}
+.metric-sub {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 4px;
+}
+.metric-change {
+  font-size: 11px;
+  margin-top: 6px;
+  font-family: 'DM Mono', monospace;
+}
+.metric-change.up { color: var(--accent); }
+.metric-change.down { color: var(--red); }
+
+/* CALENDAR */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.cal-day-header {
+  font-size: 9px;
+  color: var(--text3);
+  text-align: center;
+  padding: 4px 0;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+}
+.cal-day {
+  min-height: 36px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+}
+.cal-day:hover { background: var(--bg4); border-color: var(--border2); }
+.cal-day.today { border-color: var(--accent); background: var(--accentbg); }
+.cal-day.other-month { opacity: 0.35; }
+.cal-day.has-events::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.cal-day-num {
+  font-size: 11px;
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+  line-height: 1;
+}
+.cal-day.today .cal-day-num { color: var(--accent); font-weight: 500; }
+
+.cal-event-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+
+/* UPCOMING EVENTS */
+.event-list { display: flex; flex-direction: column; gap: 6px; }
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+.event-item:hover { background: var(--bg4); border-color: var(--border2); }
+.event-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  min-width: 60px;
+  padding-top: 1px;
+}
+.event-name {
+  font-size: 12.5px;
+  color: var(--text);
+  flex: 1;
+}
+.event-badge {
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 100px;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* AI ASSISTANT PANEL */
+#ai-panel {
+  width: 380px;
+  min-width: 380px;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+#ai-panel.collapsed {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  border-left: none;
+}
+
+.ai-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.ai-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--accent);
+}
+.ai-subtitle {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  margin-top: 1px;
+}
+
+.ai-context {
+  padding: 10px 14px;
+  background: var(--accentbg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ai-context-label {
+  font-size: 9px;
+  color: var(--accent);
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 3px;
+}
+.ai-context-text {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+.ai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ai-messages::-webkit-scrollbar { width: 3px; }
+.ai-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.msg { display: flex; flex-direction: column; gap: 3px; max-width: 100%; }
+.msg-user { align-items: flex-end; }
+.msg-ai { align-items: flex-start; }
+
+.msg-bubble {
+  padding: 10px 13px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-width: 95%;
+}
+.msg-user .msg-bubble {
+  background: var(--accentbg2);
+  border: 1px solid var(--accent2);
+  color: var(--text);
+  border-bottom-right-radius: 3px;
+}
+.msg-ai .msg-bubble {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  border-bottom-left-radius: 3px;
+}
+.msg-ai .msg-bubble.thinking {
+  color: var(--text3);
+  font-style: italic;
+}
+
+.msg-label {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  padding: 0 4px;
+}
+
+.ai-input-area {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ai-input-wrap {
+  display: flex;
+  gap: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  transition: border-color var(--transition);
+}
+.ai-input-wrap:focus-within { border-color: var(--accent); }
+
+.ai-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 12.5px;
+  font-family: 'DM Sans', sans-serif;
+  resize: none;
+  min-height: 20px;
+  max-height: 100px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+.ai-input::placeholder { color: var(--text3); }
+
+.ai-send {
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: flex-end;
+  transition: all var(--transition);
+  color: #000;
+}
+.ai-send:hover { background: var(--accent2); transform: scale(1.05); }
+.ai-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.ai-quick-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+.ai-quick-btn {
+  font-size: 10.5px;
+  padding: 4px 9px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.ai-quick-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accentbg); }
+
+/* PIPELINE VIEW */
+.pipeline-cols {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  height: 100%;
+  align-items: start;
+}
+.pipeline-col { display: flex; flex-direction: column; gap: 8px; }
+.pipeline-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 2px;
+}
+.pipeline-col-name {
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.pipeline-col-count {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 100px;
+  font-family: 'DM Mono', monospace;
+}
+.pipeline-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.pipeline-card:hover { background: var(--bg4); border-color: var(--border2); transform: translateY(-1px); }
+.pipeline-card-name { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.pipeline-card-meta { font-size: 10.5px; color: var(--text3); }
+.pipeline-card-value {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--accent);
+  margin-top: 6px;
+}
+
+/* FINANCIAL VIEW */
+.fin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.fin-row:last-child { border-bottom: none; }
+.fin-label { color: var(--text2); }
+.fin-value { font-family: 'DM Mono', monospace; color: var(--text); }
+.fin-value.positive { color: var(--accent); }
+.fin-value.negative { color: var(--red); }
+
+/* MODALS & OVERLAYS */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 24px;
+  width: 500px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: modal-in 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.modal-skill-tag {
+  font-size: 10px;
+  color: var(--accent);
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+.modal-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.form-group { margin-bottom: 14px; }
+.form-label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 5px;
+  display: block;
+}
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  padding: 9px 12px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 80px; }
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn-primary {
+  flex: 1;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all var(--transition);
+}
+.btn-primary:hover { background: var(--accent2); }
+.btn-secondary {
+  background: var(--bg3);
+  color: var(--text2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all var(--transition);
+}
+.btn-secondary:hover { background: var(--bg4); color: var(--text); }
+
+/* SETUP BANNER */
+.setup-banner {
+  background: var(--amberbg);
+  border: 1px solid rgba(255,184,77,0.3);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--amber);
+}
+
+/* NOTION EMBED */
+.notion-embed-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  overflow-y: auto;
+}
+.notion-embed-frame {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  min-height: 400px;
+}
+.notion-embed-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  min-height: 600px;
+}
+.notion-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 12px;
+  color: var(--text3);
+  text-align: center;
+}
+.notion-placeholder-icon { font-size: 32px; margin-bottom: 4px; }
+
+/* CLIENT CARDS */
+.client-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.client-card:hover { background: var(--bg4); border-color: var(--border2); }
+.client-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.client-meta { font-size: 11.5px; color: var(--text3); margin-bottom: 10px; }
+.client-retainer {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 500;
+}
+.client-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* SCROLLBAR GLOBAL */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* NOTION SETUP INPUT */
+.notion-url-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 12px;
+  padding: 9px 12px;
+  font-family: 'DM Mono', monospace;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.notion-url-input:focus { border-color: var(--accent); }
+
+/* RESPONSES AREA */
+.response-area {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: 'DM Mono', monospace;
+  margin-top: 12px;
+}
+
+.loading-dots span {
+  animation: blink 1.2s ease-in-out infinite;
+  opacity: 0;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+
+/* PROGRESS BAR */
+.progress-bar-wrap {
+  background: var(--bg);
+  border-radius: 100px;
+  height: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--accent), var(--blue));
+  transition: width 0.5s ease;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Palmetto OS</div>
+      <div class="logo-sub">Business Command Center</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" onclick="showView('dashboard')" data-view="dashboard">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showView('calendar')" data-view="calendar">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.2"/><path d="M5 1v4M11 1v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Calendar
+      </div>
+      <div class="nav-item" onclick="showView('pipeline')" data-view="pipeline">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M1 13L5 8l3 3 3-4 4 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Pipeline
+      </div>
+      <div class="nav-item" onclick="showView('clients')" data-view="clients">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M1 14c0-2.761 2.239-5 5-5s5 2.239 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M11 7c1.657 0 3 1.343 3 3 0 1.105-.596 2.07-1.481 2.595" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Clients
+      </div>
+
+      <div class="nav-section-label">Workflow</div>
+      <div class="nav-item" onclick="showView('acquisition')" data-view="acquisition">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M14 2L7 9M14 2H9M14 2v5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 3H3a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Acquisition
+      </div>
+      <div class="nav-item" onclick="showView('delivery')" data-view="delivery">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M1 8h10M8 5l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 3h2a2 2 0 012 2v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="1.2"/></svg>
+        Delivery
+      </div>
+      <div class="nav-item" onclick="showView('retention')" data-view="retention">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1v4M8 11v4M1 8h4M11 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2"/></svg>
+        Retention
+      </div>
+      <div class="nav-item" onclick="showView('billing')" data-view="billing">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.2"/><circle cx="5" cy="10.5" r="1" fill="currentColor"/></svg>
+        Billing
+      </div>
+      <div class="nav-item" onclick="showView('operations')" data-view="operations">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M11.54 4.46l-1.41 1.41M4.95 11.54l-1.41 1.41" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Operations
+      </div>
+
+      <div class="nav-section-label">Planning</div>
+      <div class="nav-item" onclick="showView('notion')" data-view="notion">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Notion Hub
+      </div>
+      <div class="nav-item" onclick="showView('financials')" data-view="financials">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1v14M5 4h4.5a2.5 2.5 0 010 5H5M5 9h5a2.5 2.5 0 010 5H5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Financials
+      </div>
+
+      <div class="nav-section-label">Tools</div>
+      <div class="nav-item" onclick="showView('skills')" data-view="skills">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        All Skills
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="api-status">
+        <div class="status-dot"></div>
+        Claude API Active
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div id="main">
+    <!-- TOPBAR -->
+    <div id="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-date" id="topbar-date"></div>
+      <button class="topbar-btn" onclick="openAddEvent()">+ Event</button>
+      <button class="topbar-btn accent" onclick="openSkillModal({name:'Quick AI Task',desc:'Run any business task through Claude',prompt:'What do you need help with for your consulting business today?',skill:'general'})">⚡ Quick Task</button>
+      <button class="topbar-btn" id="toggle-ai-btn" onclick="toggleAIPanel()">AI Panel ▶</button>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="content">
+
+      <!-- ==================== DASHBOARD ==================== -->
+      <div class="view active" id="view-dashboard">
+        <div class="scroll-area">
+
+          <div id="api-setup-banner" class="setup-banner">
+            ⚠ &nbsp;<strong>First-time setup:</strong>&nbsp; Enter your Anthropic API key in the AI panel to activate all skills. Click "AI Panel ▶" in the top bar.
+          </div>
+
+          <!-- Metrics Row -->
+          <div class="dashboard-grid" style="margin-bottom:16px;">
+            <div class="metric-card" style="--accent-color:var(--accent)">
+              <div class="metric-label">Monthly Revenue</div>
+              <div class="metric-value">$0</div>
+              <div class="metric-sub">Target: $20,000/mo</div>
+              <div class="metric-change up">↑ Track retainers to update</div>
+            </div>
+            <div class="metric-card" style="--accent-color:var(--blue)">
+              <div class="metric-label">Active Clients</div>
+              <div class="metric-value" id="metric-clients">0</div>
+              <div class="metric-sub">Target: 6–8 retainer clients</div>
+              <div class="metric-change">Add clients to track</div>
+            </div>
+            <div class="metric-card" style="--accent-color:var(--amber)">
+              <div class="metric-label">Pipeline Value</div>
+              <div class="metric-value">$0</div>
+              <div class="metric-sub">Open opportunities</div>
+              <div class="metric-change">Add deals to pipeline</div>
+            </div>
+          </div>
+
+          <!-- Today's Calendar + Quick Actions -->
+          <div class="dashboard-grid-2">
+            <div class="card">
+              <div class="section-header">
+                <div class="section-title">Today's Schedule</div>
+                <div class="section-tag">May 2, 2026</div>
+              </div>
+              <div class="event-list" id="today-events">
+                <div style="color:var(--text3);font-size:12px;padding:8px 0;">No events today — focus time ✓</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-header">
+                <div class="section-title">Quick Skills</div>
+                <div class="section-tag">One-click launch</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+                <button class="skill-card" style="text-align:left" onclick="openSkillModal(SKILLS.find(s=>s.id==='discovery-call-prep'))">
+                  <div class="skill-name">Discovery Call Prep</div>
+                  <div class="skill-desc">Prep for new prospect</div>
+                </button>
+                <button class="skill-card" style="text-align:left" onclick="openSkillModal(SKILLS.find(s=>s.id==='outreach-sequences'))">
+                  <div class="skill-name">Write Outreach</div>
+                  <div class="skill-desc">Cold email / LinkedIn</div>
+                </button>
+                <button class="skill-card" style="text-align:left" onclick="openSkillModal(SKILLS.find(s=>s.id==='invoice-generator'))">
+                  <div class="skill-name">Create Invoice</div>
+                  <div class="skill-desc">Bill a client now</div>
+                </button>
+                <button class="skill-card" style="text-align:left" onclick="openSkillModal(SKILLS.find(s=>s.id==='status-reports'))">
+                  <div class="skill-name">Status Report</div>
+                  <div class="skill-desc">Client update</div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Events -->
+          <div class="card" style="margin-top:14px;">
+            <div class="section-header">
+              <div class="section-title">Upcoming — Next 7 Days</div>
+              <button class="topbar-btn" onclick="showView('calendar')">View Calendar →</button>
+            </div>
+            <div class="event-list" id="upcoming-events-list"></div>
+          </div>
+
+          <!-- Revenue Path -->
+          <div class="card" style="margin-top:14px;">
+            <div class="section-header">
+              <div class="section-title">Revenue Growth Path</div>
+              <div class="section-tag">Phase tracker</div>
+            </div>
+            <div id="revenue-phases"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================== CALENDAR ==================== -->
+      <div class="view" id="view-calendar">
+        <div class="scroll-area">
+          <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;">
+            <div class="card">
+              <div class="section-header">
+                <button class="topbar-btn" onclick="calNav(-1)">‹ Prev</button>
+                <div class="section-title" id="cal-month-label" style="font-size:16px;"></div>
+                <button class="topbar-btn" onclick="calNav(1)">Next ›</button>
+              </div>
+              <div class="cal-grid" id="cal-grid"></div>
+            </div>
+
+            <div>
+              <div class="card" style="margin-bottom:12px;">
+                <div class="section-header">
+                  <div class="section-title" id="cal-selected-label">Events</div>
+                  <button class="topbar-btn" onclick="openAddEvent()">+ Add</button>
+                </div>
+                <div class="event-list" id="cal-day-events" style="max-height:300px;overflow-y:auto;"></div>
+              </div>
+
+              <div class="card">
+                <div class="section-header">
+                  <div class="section-title">Business Deadlines</div>
+                </div>
+                <div class="event-list" id="biz-reminders"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== PIPELINE ==================== -->
+      <div class="view" id="view-pipeline">
+        <div class="scroll-area">
+          <div class="section-header" style="margin-bottom:16px;">
+            <div class="section-title" style="font-size:16px;">Client Pipeline</div>
+            <button class="topbar-btn accent" onclick="openAddDeal()">+ Add Deal</button>
+          </div>
+          <div class="pipeline-cols" id="pipeline-board"></div>
+        </div>
+      </div>
+
+      <!-- ==================== CLIENTS ==================== -->
+      <div class="view" id="view-clients">
+        <div class="scroll-area">
+          <div class="section-header" style="margin-bottom:16px;">
+            <div class="section-title" style="font-size:16px;">Active Clients</div>
+            <button class="topbar-btn accent" onclick="openAddClient()">+ Add Client</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;" id="clients-grid">
+            <div style="color:var(--text3);font-size:13px;padding:20px;text-align:center;grid-column:1/-1;">
+              No clients yet. Add your first client to start tracking retainers and work.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ACQUISITION ==================== -->
+      <div class="view" id="view-acquisition">
+        <div class="scroll-area">
+          <div class="section-header" style="margin-bottom:4px;">
+            <div class="section-title" style="font-size:16px;">Client Acquisition</div>
+            <div class="section-tag">Find → Qualify → Close</div>
+          </div>
+          <div id="skills-acquisition"></div>
+        </div>
+      </div>
+
+      <!-- ==================== DELIVERY ==================== -->
+      <div class="view" id="view-delivery">
+        <div class="scroll-area">
+          <div class="section-header" style="margin-bottom:4px;">
+            <div class="section-title" style="font-size:16px;">Service Delivery</div>
+            <div class="section-tag">Audit → Strategy → AI → Advisory</div>
+          </div>
+          <div id="skills-delivery"></div>
+        </div>
+      </div>
+
+      <!-- ==================== RETENTION ==================== -->
+      <div class="view" id="view-retention">
+        <div class="scroll-area">
+          <div class="section-header" style="margin-bottom:4px;">
+            <div class="section-title" style="font-size:16px;">Client Retention & Growth</div>
+            <div class="section-tag">Onboard → Manage → Expand → Renew</div>
+          </div>
+          <div id="skills-retention"></div>
+        </div>
+      </div>
+
+      <!-- ==================== BILLING ==================== -->
+      <div class="view" id="view-billing">
+        <div class="scroll-area">
+          <div class="section-header" style="margin-bottom:4px;">
+            <div class="section-title" style="font-size:16px;">Billing & Collections</div>
+            <div class="section-tag">Invoice → Follow-up → Report</div>
+          </div>
+          <div id="skills-billing"></div>
+        </div>
+      </div>
+
+      <!-- ==================== OPERATIONS ==================== -->
+      <div class="view" id="view-operations">
+        <div class="scroll-area">
+          <div class="section-header" style="margin-bottom:4px;">
+            <div class="section-title" style="font-size:16px;">Business Operations</div>
+            <div class="section-tag">SOPs · Hiring · LinkedIn · Newsletter</div>
+          </div>
+          <div id="skills-operations"></div>
+        </div>
+      </div>
+
+      <!-- ==================== NOTION HUB ==================== -->
+      <div class="view" id="view-notion">
+        <div class="notion-embed-area">
+          <div class="card">
+            <div class="section-header">
+              <div class="section-title">Notion Workspace</div>
+              <div class="section-tag">Planning Hub</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+              <input class="notion-url-input" id="notion-url-input" placeholder="Paste your Notion page URL to embed (e.g. https://notion.so/yourpage)" style="flex:1;">
+              <button class="btn-primary" style="flex:none;padding:9px 16px;" onclick="embedNotion()">Embed</button>
+            </div>
+            <div style="font-size:11px;color:var(--text3);line-height:1.6;">
+              To embed: In Notion, open your page → Share → Enable "Share to web" → Copy link and paste above.<br>
+              For best results create a Notion page with: Client tracker, Content calendar, Invoice tracker, Project board, and 60-day renewals.
+            </div>
+          </div>
+
+          <div class="notion-embed-frame" id="notion-frame">
+            <div class="notion-placeholder">
+              <div class="notion-placeholder-icon">📋</div>
+              <div style="font-size:14px;color:var(--text2);font-weight:500;">Connect your Notion workspace</div>
+              <div style="font-size:12px;color:var(--text3);max-width:300px;">Paste a public Notion page URL above to embed your planning hub directly in this app.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-header">
+              <div class="section-title">Quick Notion Actions</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+              <button class="skill-card" onclick="openSkillModal(SKILLS.find(s=>s.id==='meeting-scheduler'))">
+                <div class="skill-name">Schedule Meeting</div>
+                <div class="skill-desc">Add to calendar</div>
+              </button>
+              <button class="skill-card" onclick="openSkillModal(SKILLS.find(s=>s.id==='sop-writer'))">
+                <div class="skill-name">Write SOP</div>
+                <div class="skill-desc">Document process</div>
+              </button>
+              <button class="skill-card" onclick="openSkillModal(SKILLS.find(s=>s.id==='newsletter-generator'))">
+                <div class="skill-name">Newsletter</div>
+                <div class="skill-desc">Write + plan send</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== FINANCIALS ==================== -->
+      <div class="view" id="view-financials">
+        <div class="scroll-area">
+          <div class="dashboard-grid" style="margin-bottom:16px;">
+            <div class="metric-card" style="--accent-color:var(--accent)">
+              <div class="metric-label">Annual Net Target</div>
+              <div class="metric-value">$180K</div>
+              <div class="metric-sub">~$15,000/mo net</div>
+            </div>
+            <div class="metric-card" style="--accent-color:var(--blue)">
+              <div class="metric-label">Gross Needed</div>
+              <div class="metric-value">$235K</div>
+              <div class="metric-sub">~$19,583/mo gross</div>
+            </div>
+            <div class="metric-card" style="--accent-color:var(--amber)">
+              <div class="metric-label">Effective Rate Floor</div>
+              <div class="metric-value">$150/hr</div>
+              <div class="metric-sub">Strategy-only pricing</div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid-2">
+            <div class="card">
+              <div class="section-header">
+                <div class="section-title">Revenue Mix</div>
+              </div>
+              <div>
+                <div class="fin-row"><span class="fin-label">Retainer income (6–8 clients × $2.5K)</span><span class="fin-value positive">$180K/yr</span></div>
+                <div class="fin-row"><span class="fin-label">Project income (8 engagements × $4K)</span><span class="fin-value positive">$32K/yr</span></div>
+                <div class="fin-row"><span class="fin-label">Platform income (Upwork/Fiverr)</span><span class="fin-value positive">$18K/yr</span></div>
+                <div class="fin-row" style="border-top:1px solid var(--border2);margin-top:4px;padding-top:10px;"><span class="fin-label" style="font-weight:500;">Total gross target</span><span class="fin-value positive" style="font-size:16px;">$230K/yr</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-header"><div class="section-title">Financial Skills</div></div>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <button class="skill-card" onclick="openSkillModal(SKILLS.find(s=>s.id==='financial-reports'))">
+                  <div class="skill-name">Monthly P&L Report</div>
+                  <div class="skill-desc">Generate this month's financial summary</div>
+                  <span class="skill-arrow">→</span>
+                </button>
+                <button class="skill-card" onclick="openSkillModal(SKILLS.find(s=>s.id==='invoice-generator'))">
+                  <div class="skill-name">Create Invoice</div>
+                  <div class="skill-desc">Bill a client for retainer or project work</div>
+                  <span class="skill-arrow">→</span>
+                </button>
+                <button class="skill-card" onclick="openSkillModal(SKILLS.find(s=>s.id==='payment-followup'))">
+                  <div class="skill-name">Chase Payment</div>
+                  <div class="skill-desc">Overdue invoice follow-up sequence</div>
+                  <span class="skill-arrow">→</span>
+                </button>
+                <button class="skill-card" onclick="openSkillModal(SKILLS.find(s=>s.id==='ai-cost-benefit-calculator'))">
+                  <div class="skill-name">ROI Calculator</div>
+                  <div class="skill-desc">Model AI investment ROI for a client proposal</div>
+                  <span class="skill-arrow">→</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ALL SKILLS ==================== -->
+      <div class="view" id="view-skills">
+        <div class="scroll-area" id="all-skills-area"></div>
+      </div>
+
+    </div><!-- end #content -->
+  </div><!-- end #main -->
+
+  <!-- AI PANEL -->
+  <div id="ai-panel" class="collapsed">
+    <div class="ai-header">
+      <div>
+        <div class="ai-title">Claude AI</div>
+        <div class="ai-subtitle" id="ai-panel-subtitle">Skill Assistant</div>
+      </div>
+      <button class="topbar-btn" onclick="toggleAIPanel()" style="padding:4px 10px;font-size:11px;">✕</button>
+    </div>
+
+    <!-- API Key Setup -->
+    <div id="api-key-section" style="padding:12px 14px;border-bottom:1px solid var(--border);background:var(--amberbg);">
+      <div style="font-size:10px;color:var(--amber);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">API Key Required</div>
+      <div style="display:flex;gap:6px;">
+        <input type="password" id="api-key-input" placeholder="sk-ant-..." class="notion-url-input" style="flex:1;font-size:11px;padding:7px 10px;">
+        <button onclick="saveApiKey()" class="btn-primary" style="flex:none;padding:7px 12px;font-size:11px;">Save</button>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:5px;">Key stored locally in browser. Never sent anywhere except api.anthropic.com</div>
+    </div>
+
+    <div class="ai-context" id="ai-context-bar">
+      <div class="ai-context-label">Active Skill</div>
+      <div class="ai-context-text" id="ai-context-text">Select a skill card to begin</div>
+    </div>
+
+    <div class="ai-messages" id="ai-messages">
+      <div class="msg msg-ai">
+        <div class="msg-label">Claude</div>
+        <div class="msg-bubble">
+          Welcome to Palmetto OS. I'm your business AI — click any skill card to launch a workflow, or type a request below. I know your entire 32-skill suite and all your business context.
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-input-area">
+      <div class="ai-input-wrap">
+        <textarea class="ai-input" id="ai-input" placeholder="Type a task or question..." rows="1" onkeydown="handleInputKey(event)"></textarea>
+        <button class="ai-send" id="ai-send-btn" onclick="sendMessage()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="ai-quick-btns">
+        <button class="ai-quick-btn" onclick="quickTask('Write a cold outreach email for a new prospect')">Cold email</button>
+        <button class="ai-quick-btn" onclick="quickTask('Create an invoice for a retainer client')">Invoice</button>
+        <button class="ai-quick-btn" onclick="quickTask('Write this week client status report')">Status report</button>
+        <button class="ai-quick-btn" onclick="quickTask('Check if a client ask is in scope')">Scope check</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<!-- SKILL MODAL -->
+<div class="modal-overlay" id="skill-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-skill-tag" id="modal-tag"></div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div id="modal-form-area"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('skill-modal')">Cancel</button>
+      <button class="btn-primary" id="modal-launch-btn" onclick="launchSkill()">⚡ Launch Skill</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD EVENT MODAL -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal" style="width:420px;">
+    <div class="modal-title">Add Calendar Event</div>
+    <div class="modal-skill-tag">Google Calendar</div>
+    <div class="form-group">
+      <label class="form-label">Event Title</label>
+      <input class="form-input" id="ev-title" placeholder="e.g. Discovery call with Acme Corp">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date & Time</label>
+      <input class="form-input" id="ev-datetime" type="datetime-local">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Duration (minutes)</label>
+      <select class="form-select" id="ev-duration">
+        <option value="30">30 min</option>
+        <option value="60" selected>1 hour</option>
+        <option value="90">1.5 hours</option>
+        <option value="120">2 hours</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="ev-notes" placeholder="Optional notes..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('event-modal')">Cancel</button>
+      <button class="btn-primary" onclick="submitEvent()">Add to Calendar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CLIENT MODAL -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal" style="width:440px;">
+    <div class="modal-title">Add Client</div>
+    <div class="modal-skill-tag">Client Tracker</div>
+    <div class="form-group">
+      <label class="form-label">Company Name</label>
+      <input class="form-input" id="cl-name" placeholder="e.g. Acme Corp">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contact Name</label>
+      <input class="form-input" id="cl-contact" placeholder="e.g. Jane Smith">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Service Type</label>
+      <select class="form-select" id="cl-service">
+        <option>SEO Audit</option>
+        <option>Content Strategy</option>
+        <option>AI Integration</option>
+        <option>Fractional Advisory</option>
+        <option>Multiple Services</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Monthly Retainer ($)</label>
+      <input class="form-input" id="cl-retainer" type="number" placeholder="e.g. 3000">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contract End Date</label>
+      <input class="form-input" id="cl-end" type="date">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('client-modal')">Cancel</button>
+      <button class="btn-primary" onclick="submitClient()">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DEAL MODAL -->
+<div class="modal-overlay" id="deal-modal">
+  <div class="modal" style="width:440px;">
+    <div class="modal-title">Add Deal to Pipeline</div>
+    <div class="modal-skill-tag">Pipeline</div>
+    <div class="form-group">
+      <label class="form-label">Prospect / Company</label>
+      <input class="form-input" id="dl-name" placeholder="e.g. Acme Corp">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Service</label>
+      <select class="form-select" id="dl-service">
+        <option>SEO Audit</option>
+        <option>Content Strategy</option>
+        <option>AI Integration</option>
+        <option>Fractional Advisory</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deal Value ($)</label>
+      <input class="form-input" id="dl-value" type="number" placeholder="e.g. 5000">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Stage</label>
+      <select class="form-select" id="dl-stage">
+        <option value="0">Prospect</option>
+        <option value="1">Discovery</option>
+        <option value="2">Proposal</option>
+        <option value="3">Negotiation</option>
+        <option value="4">Closed</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('deal-modal')">Cancel</button>
+      <button class="btn-primary" onclick="submitDeal()">Add Deal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA & STATE
+// ============================================================
+let apiKey = localStorage.getItem('palmetto_api_key') || '';
+let currentView = 'dashboard';
+let aiPanelOpen = false;
+let activeSkill = null;
+let chatHistory = [];
+let clients = JSON.parse(localStorage.getItem('palmetto_clients') || '[]');
+let deals = JSON.parse(localStorage.getItem('palmetto_deals') || '[]');
+let calOffset = 0; // months from now
+let selectedDay = null;
+let notionUrl = localStorage.getItem('palmetto_notion_url') || '';
+
+// Calendar events from Google (loaded in)
+const GC_EVENTS = [
+  { date: '2026-05-04', time: '9:00 AM', name: 'Discovery Call — Riverside Dental', type: 'client' },
+  { date: '2026-05-04', time: '6:00 PM', name: 'Gym', type: 'personal' },
+  { date: '2026-05-05', time: '10:30 AM', name: 'SEO Audit Kickoff — Greenline Co.', type: 'client' },
+  { date: '2026-05-05', time: '1:00 PM', name: 'Dentist Appointment', type: 'personal' },
+  { date: '2026-05-05', time: '3:00 PM', name: 'Content Review — Maple & Co.', type: 'client' },
+  { date: '2026-05-06', time: '9:00 AM', name: 'Team Sync', type: 'client' },
+  { date: '2026-05-06', time: '6:00 PM', name: 'Gym', type: 'personal' },
+  { date: '2026-05-07', time: '11:00 AM', name: 'Client Onboarding Call — Westfield Supply', type: 'client' },
+  { date: '2026-05-07', time: '2:00 PM', name: 'Invoice Follow-Up', type: 'client' },
+  { date: '2026-05-08', time: '10:00 AM', name: 'Proposal Review — Carter Logistics', type: 'client' },
+  { date: '2026-05-11', time: '9:30 AM', name: 'Discovery Call — Harbor Realty', type: 'client' },
+  { date: '2026-05-11', time: '6:00 PM', name: 'Gym', type: 'personal' },
+  { date: '2026-05-12', time: '1:00 PM', name: 'Monthly Status Report Due', type: 'client' },
+  { date: '2026-05-13', time: '10:00 AM', name: 'AI Roadmap Review — Pinecrest Group', type: 'client' },
+  { date: '2026-05-14', time: '9:00 AM', name: 'Content Strategy Session', type: 'client' },
+  { date: '2026-05-14', time: '6:00 PM', name: 'Gym', type: 'personal' },
+  { date: '2026-05-15', time: '11:00 AM', name: 'Quarterly Planning', type: 'client' },
+];
+let allEvents = [...GC_EVENTS];
+
+// ============================================================
+// SKILLS DATA
+// ============================================================
+const SKILL_GROUPS = [
+  {
+    id: 'acquisition',
+    label: 'Client Acquisition',
+    color: 'var(--blue)',
+    desc: 'Find → Qualify → Propose → Close',
+    skills: [
+      { id: 'discovery-call-prep', name: 'Discovery Call Prep', desc: 'Research a prospect + build a pre-call brief and question list', prompt: 'I need to prep for a discovery call. Prospect: [company name]. What I know about them: [details]. Help me research them, build a call agenda, and draft my top 10 questions.' },
+      { id: 'outreach-sequences', name: 'Outreach Sequences', desc: 'Cold email + LinkedIn multi-step sequences for target prospects', prompt: 'I want to reach out to a prospect. Target: [company/name/industry]. Help me write a 4-step cold email sequence and 2 LinkedIn messages for Palmetto Group AI consulting services.' },
+      { id: 'proposal-generator', name: 'Proposal Generator', desc: 'Build a full client proposal with SOW, pricing, and timeline', prompt: 'I need to write a proposal for a client. Client: [name]. Service: [type]. Scope: [details]. Budget discussed: [amount]. Generate a professional Palmetto Group consulting proposal with SOW and pricing.' },
+      { id: 'proposal-followup', name: 'Proposal Follow-Up', desc: 'Recover stalled deals, handle objections, close pending proposals', prompt: 'I sent a proposal and need to follow up. Client: [name]. Proposal sent: [date]. Value: [amount]. Status: [what happened]. Help me write a follow-up message to move this deal forward.' },
+      { id: 'fiverr-upwork-hunter', name: 'Fiverr/Upwork Hunter', desc: 'Evaluate freelance listings and draft winning bid proposals', prompt: 'I found a job listing on [Upwork/Fiverr]. Here is the listing: [paste listing]. Evaluate the fit score (1-10) and write a bid proposal for Palmetto Group strategy-only consulting services.' },
+      { id: 'scope-decision-matrix', name: 'Scope Decision Matrix', desc: 'Decide what to take, refer, or decline before committing', prompt: 'A prospect is asking about [description of request]. Help me decide: is this in scope for Palmetto Group (strategy/advisory only)? Should I take it, scope it differently, or refer out?' },
+    ]
+  },
+  {
+    id: 'delivery',
+    label: 'Service Delivery',
+    color: 'var(--accent)',
+    desc: 'SEO Audit → Content → AI → Advisory',
+    skills: [
+      { id: 'seo-audit-analysis', name: 'SEO Audit Analysis', desc: '40+ check comprehensive SEO audit with prioritized recommendations', prompt: 'I need to run an SEO audit. Client: [name]. Website: [URL]. Context: [any known issues or goals]. Run a comprehensive SEO audit covering technical, on-page, content, and competitive factors. Prioritize by impact.' },
+      { id: 'technical-seo', name: 'Technical SEO Guide', desc: 'Developer-ready implementation specs for audit findings', prompt: 'I have SEO audit findings that need implementation specs. Client: [name]. Key issues found: [list issues]. Create a developer-ready technical SEO implementation guide with exact code/steps for each issue.' },
+      { id: 'content-optimization-strategy', name: 'Content Strategy', desc: 'Keyword research, topic clusters, 90-day editorial calendar', prompt: 'I need to build a content strategy. Client: [name]. Industry: [industry]. Target audience: [description]. Top 3 goals: [goals]. Create a keyword research plan, topic cluster map, and 90-day editorial calendar.' },
+      { id: 'content-brief-batch-generator', name: 'Content Brief Batch', desc: 'Generate 10–50 writer-ready content briefs from a keyword list', prompt: 'I need content briefs for a client. Client: [name]. Keyword list: [paste keywords]. Generate writer-ready briefs for each keyword including title, meta description, H2 structure, word count, and CTAs.' },
+      { id: 'competitor-analysis-tool', name: 'Competitor Analysis', desc: 'Deep analysis of 3–5 competitors with gap identification', prompt: 'I need to analyze competitors. Client: [name]. Client website: [URL]. Top 3 competitors: [URLs]. Analyze their SEO, content strategy, and positioning. Identify gaps and opportunities for my client.' },
+      { id: 'ai-implementation-roadmap-generator', name: 'AI Roadmap Generator', desc: 'Phased AI adoption roadmap for enterprise clients', prompt: 'I need to build an AI implementation roadmap. Client: [name]. Industry: [industry]. Current AI usage: [description]. Goals: [goals]. Create a phased 12-month AI implementation roadmap with budget estimates and ROI projections.' },
+      { id: 'ai-integration-spec-builder', name: 'AI Integration Spec', desc: 'Developer-ready technical spec for AI system implementation', prompt: 'I need a technical spec for an AI integration. Client: [name]. System to build: [description]. Tech stack: [if known]. Create a complete technical specification a developer can use to build this AI integration.' },
+    ]
+  },
+  {
+    id: 'retention',
+    label: 'Client Retention & Growth',
+    color: 'var(--purple)',
+    desc: 'Onboard → Manage → Expand → Renew',
+    skills: [
+      { id: 'client-onboarding', name: 'Client Onboarding', desc: 'Kickoff agenda, intake form, welcome email, access checklist', prompt: 'I just signed a new client and need to onboard them. Client: [name]. Service: [type]. Kickoff date: [date]. Generate: welcome email, intake questionnaire, kickoff agenda, and access checklist.' },
+      { id: 'status-reports', name: 'Status Report', desc: 'Weekly/monthly client updates with results and next steps', prompt: 'I need to write a client status report. Client: [name]. Reporting period: [dates]. Work completed: [summary]. Results/metrics: [data]. Next steps: [plans]. Write a professional status report for this client.' },
+      { id: 'scope-drift-detector', name: 'Scope Drift Detector', desc: 'Check if a client ask is in-scope and how to respond', prompt: 'A client is asking for something. Client: [name]. Current SOW: [what we agreed to]. New ask: [what they are asking for]. Is this in scope? How should I respond?' },
+      { id: 'client-communications', name: 'Client Communications', desc: 'Handle escalations, bad news, disputes, and tough conversations', prompt: 'I need to write a sensitive client message. Situation: [describe the situation]. Relationship status: [good/strained]. What I need to communicate: [details]. Help me write this message for Palmetto Group.' },
+      { id: 'retainer-expansion', name: 'Retainer Expansion', desc: 'Convert scope creep into a formal expanded retainer', prompt: 'A client keeps asking for work outside our scope and I want to expand the retainer. Client: [name]. Current retainer: $[amount]/mo for [scope]. Out-of-scope asks: [list]. Help me propose a retainer expansion.' },
+      { id: 'renewal-conversation', name: 'Renewal Conversation', desc: '60-day end-of-contract renewal or wind-down planning', prompt: 'A client contract is ending and I need to handle the renewal. Client: [name]. Contract value: $[amount]/mo. End date: [date]. Relationship status: [description]. Help me plan and write the renewal conversation.' },
+      { id: 'engagement-postmortem', name: 'Engagement Post-Mortem', desc: 'Internal review: what worked, what to do differently', prompt: 'An engagement just ended and I want to run a post-mortem. Client: [name]. Engagement duration: [time]. What went well: [notes]. What was difficult: [notes]. Would I take them again: [yes/no/maybe]. Run the post-mortem.' },
+      { id: 'content-performance-analyzer', name: 'Performance Analyzer', desc: 'Monthly/quarterly content ROI reports with GA4 data', prompt: 'I need to run a content performance analysis. Client: [name]. Period: [month/quarter]. Traffic data: [paste or describe]. Top performing content: [list]. Generate a performance report with ROI tracking and optimization recommendations.' },
+      { id: 'case-study-generator', name: 'Case Study Generator', desc: 'Turn a win into a polished long-form + one-pager case study', prompt: 'I want to write a case study about a completed engagement. Client (can be anonymized): [name or type]. Problem they had: [description]. What I did: [summary]. Results achieved: [metrics]. Write a case study in long-form and one-pager formats.' },
+    ]
+  },
+  {
+    id: 'billing',
+    label: 'Billing & Collections',
+    color: 'var(--amber)',
+    desc: 'Invoice → Follow-up → P&L',
+    skills: [
+      { id: 'invoice-generator', name: 'Invoice Generator', desc: 'Professional invoices for retainers, projects, and milestones', prompt: 'I need to create an invoice. Client: [name]. Invoice for: [retainer/project/milestone]. Amount: $[amount]. Services rendered: [description]. Due date: [date]. Generate a professional invoice for Palmetto Group Consulting.' },
+      { id: 'payment-followup', name: 'Payment Follow-Up', desc: 'Escalating collections sequences for overdue invoices', prompt: 'A client has an overdue invoice. Client: [name]. Invoice amount: $[amount]. Due date: [date]. Days overdue: [number]. Last contact: [date]. Draft a payment follow-up message (polite but firm).' },
+      { id: 'financial-reports', name: 'Financial Reports', desc: 'Monthly P&L, AR aging, client profitability, revenue forecast', prompt: 'I need to generate a financial report. Report type: [monthly P&L / quarterly review / AR aging / client profitability]. Period: [dates]. Revenue this period: $[amount]. Expenses: $[amount]. Generate the report.' },
+    ]
+  },
+  {
+    id: 'operations',
+    label: 'Business Operations',
+    color: 'var(--red)',
+    desc: 'SOPs · Hiring · LinkedIn · Newsletter',
+    skills: [
+      { id: 'sop-writer', name: 'SOP Writer', desc: 'Document any repeatable process as a delegatable SOP', prompt: 'I want to document a process as a Standard Operating Procedure. Process name: [name]. Here is how I do it: [describe the steps in as much detail as you have]. Create a complete SOP that a VA or contractor could follow.' },
+      { id: 'hiring-toolkit', name: 'Hiring Toolkit', desc: 'Job descriptions, screening, interview questions, offer letters', prompt: 'I need help hiring someone. Role I am hiring for: [description]. Key responsibilities: [list]. Budget: $[amount]. What I need: [job description / screening questions / interview questions / offer letter]. Generate the documents.' },
+      { id: 'newsletter-generator', name: 'Newsletter Generator', desc: 'Educational email blasts for your subscriber list', prompt: 'I need to write a newsletter for my email list. Topic/theme: [topic]. Key insight I want to share: [description]. My audience is SEO professionals, marketing directors, and SMB owners interested in AI-driven growth. Write the newsletter.' },
+      { id: 'linkedin-content-calendar', name: 'LinkedIn Calendar', desc: 'Content calendar + ready-to-post LinkedIn content', prompt: 'I need LinkedIn content for Palmetto Group. Topic focus: [topic or just "general SEO/AI consulting authority content"]. Time period: [week / month]. Generate a content calendar with ready-to-post LinkedIn posts.' },
+      { id: 'meeting-scheduler', name: 'Meeting Scheduler', desc: 'Propose times, agendas, confirmations, rescheduling', prompt: 'I need to schedule a meeting. Meeting type: [discovery call / check-in / kickoff / etc.]. With: [name/company]. Context: [any relevant info]. Help me write the scheduling email and meeting agenda.' },
+      { id: 'chatbot-script', name: 'Chatbot Script', desc: 'palmettogroup.ai website chatbot conversation flows', prompt: 'I need to update or extend the chatbot script for palmettogroup.ai. Area to work on: [lead qualification / FAQ / booking discovery calls / objection handling]. Update or write the conversation flow.' },
+    ]
+  },
+  {
+    id: 'meta',
+    label: 'Strategy & Infrastructure',
+    color: 'var(--text2)',
+    desc: 'Proposals · ROI Models · Business Case',
+    skills: [
+      { id: 'ai-cost-benefit-calculator', name: 'AI Cost-Benefit Calc', desc: 'Financial ROI model for AI initiatives (5-scenario NPV analysis)', prompt: 'I need to build an AI ROI model. Client: [name]. AI initiative: [description]. Current cost of the problem: $[amount]. Expected investment: $[amount]. Build a 5-scenario cost-benefit analysis with NPV and payback period.' },
+      { id: 'business-case-proposal-generator', name: 'Business Case Builder', desc: 'Full PPTX + DOCX proposal combining all skill outputs', prompt: 'I need to compile a complete business case proposal. Client: [name]. Combining findings from: [audit / roadmap / content strategy / financial model]. Generate a comprehensive proposal outline and executive summary for Palmetto Group.' },
+      { id: 'client-communications-general', name: 'Client Communications', desc: 'High-stakes messages: bad news, disputes, sensitive feedback', prompt: 'I need to write a difficult client message. Context: [describe the situation]. Stakes: [what is at risk]. Desired outcome: [what you want to happen]. Write the message for Palmetto Group.' },
+      { id: 'scope-decision', name: 'Scope Decision Matrix', desc: 'Evaluate any incoming opportunity against Palmetto positioning', prompt: 'I have a new opportunity and need to decide how to scope it. Opportunity: [describe what the prospect wants]. My positioning: strategy and advisory only, no implementation. Help me decide what to take on and how to scope it.' },
+    ]
+  }
+];
+
+// Flatten for lookup
+const SKILLS = SKILL_GROUPS.flatMap(g => g.skills.map(s => ({ ...s, groupColor: g.color })));
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  updateTopbarDate();
+  if (apiKey) { document.getElementById('api-key-section').style.display = 'none'; document.getElementById('api-setup-banner').style.display = 'none'; }
+  buildAllSkillViews();
+  buildPipeline();
+  buildCalendar();
+  buildUpcomingEvents();
+  buildRevenuePhases();
+  buildClientsGrid();
+  if (notionUrl) { embedNotion(notionUrl); }
+  setInterval(updateTopbarDate, 60000);
+});
+
+function updateTopbarDate() {
+  const d = new Date();
+  const opts = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+  document.getElementById('topbar-date').textContent = d.toLocaleDateString('en-US', opts);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.querySelector(`[data-view="${id}"]`).classList.add('active');
+  currentView = id;
+  const titles = { dashboard: 'Dashboard', calendar: 'Calendar', pipeline: 'Pipeline', clients: 'Clients', acquisition: 'Client Acquisition', delivery: 'Service Delivery', retention: 'Client Retention', billing: 'Billing', operations: 'Operations', notion: 'Notion Hub', financials: 'Financials', skills: 'All Skills' };
+  document.getElementById('topbar-title').textContent = titles[id] || id;
+}
+
+function toggleAIPanel() {
+  aiPanelOpen = !aiPanelOpen;
+  const panel = document.getElementById('ai-panel');
+  const btn = document.getElementById('toggle-ai-btn');
+  if (aiPanelOpen) { panel.classList.remove('collapsed'); btn.textContent = 'AI Panel ✕'; }
+  else { panel.classList.add('collapsed'); btn.textContent = 'AI Panel ▶'; }
+}
+
+// ============================================================
+// SKILLS RENDERING
+// ============================================================
+function buildSkillSection(groupId, containerId) {
+  const group = SKILL_GROUPS.find(g => g.id === groupId);
+  if (!group || !document.getElementById(containerId)) return;
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  const sec = document.createElement('div');
+  sec.className = 'skills-section';
+  sec.innerHTML = `<div class="skills-section-title" style="color:${group.color}">${group.label} — ${group.desc}</div>
+  <div class="skills-grid">${group.skills.map(s => skillCardHTML(s, group.color)).join('')}</div>`;
+  el.appendChild(sec);
+}
+
+function skillCardHTML(skill, color) {
+  return `<div class="skill-card" style="--accent-color:${color}" onclick="openSkillModal(${JSON.stringify(skill).replace(/"/g, '&quot;')})">
+    <div class="skill-name">${skill.name}</div>
+    <div class="skill-desc">${skill.desc}</div>
+    <span class="skill-arrow">→</span>
+  </div>`;
+}
+
+function buildAllSkillViews() {
+  buildSkillSection('acquisition', 'skills-acquisition');
+  buildSkillSection('delivery', 'skills-delivery');
+  buildSkillSection('retention', 'skills-retention');
+  buildSkillSection('billing', 'skills-billing');
+  buildSkillSection('operations', 'skills-operations');
+
+  // All skills view
+  const allArea = document.getElementById('all-skills-area');
+  if (!allArea) return;
+  allArea.innerHTML = '';
+  SKILL_GROUPS.forEach(group => {
+    const sec = document.createElement('div');
+    sec.className = 'skills-section';
+    sec.innerHTML = `<div class="skills-section-title" style="color:${group.color}">${group.label} — ${group.desc}</div>
+    <div class="skills-grid">${group.skills.map(s => skillCardHTML(s, group.color)).join('')}</div>`;
+    allArea.appendChild(sec);
+  });
+}
+
+// ============================================================
+// SKILL MODAL
+// ============================================================
+let activeSkillObj = null;
+function openSkillModal(skill) {
+  if (!skill) return;
+  activeSkillObj = skill;
+  document.getElementById('modal-title').textContent = skill.name;
+  document.getElementById('modal-tag').textContent = '⚡ Palmetto Skill — Click Launch to run through Claude';
+  document.getElementById('modal-desc').textContent = skill.desc;
+
+  // Build a simple context form
+  const formArea = document.getElementById('modal-form-area');
+  formArea.innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Context / Details</label>
+      <textarea class="form-textarea" id="skill-context" style="min-height:110px;" placeholder="${skill.prompt.replace(/\[/g,'[').substring(0,200)}...">${skill.prompt}</textarea>
+    </div>`;
+
+  document.getElementById('skill-modal').classList.add('open');
+
+  // Open AI panel automatically
+  if (!aiPanelOpen) toggleAIPanel();
+  document.getElementById('ai-context-text').textContent = skill.name + ' — fill in the details above and click Launch';
+  document.getElementById('ai-panel-subtitle').textContent = skill.name;
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function launchSkill() {
+  if (!activeSkillObj) return;
+  const context = document.getElementById('skill-context').value.trim();
+  closeModal('skill-modal');
+  const systemPrompt = buildSystemPrompt(activeSkillObj.name);
+  sendToClaudeWithSystem(context, systemPrompt, activeSkillObj.name);
+}
+
+function buildSystemPrompt(skillName) {
+  return `You are the AI assistant for Palmetto Group Consulting (palmettogroup.ai) — an AI-driven SEO strategy and advisory consultancy run by Dane Bonnigson based in Greer, South Carolina.
+
+BUSINESS CONTEXT:
+- Palmetto Group is a strategy-only consultancy. We spec the work; clients' teams ship it.
+- Four services: SEO Audits ($750-$5K), Content Strategy ($2K-$6K/mo), AI Integration ($5K-$25K), Fractional Advisory ($2K-$5K/mo)
+- Target: a sustainable base of 6-8 retainer clients at ~$3K/mo average.
+- Hourly rate floor: $150/hr for strategy and advisory work.
+- All outputs are professional, direct, and ready to use without extensive editing.
+
+ACTIVE SKILL: ${skillName}
+
+Produce a complete, professional, ready-to-use output based on the user's input. Format clearly with headers and sections. Be specific, not generic. Reference Palmetto Group by name in all client-facing deliverables.`;
+}
+
+// ============================================================
+// AI MESSAGING
+// ============================================================
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key.startsWith('sk-ant-')) { alert('That doesn\'t look like a valid Anthropic API key (should start with sk-ant-)'); return; }
+  apiKey = key;
+  localStorage.setItem('palmetto_api_key', key);
+  document.getElementById('api-key-section').style.display = 'none';
+  document.getElementById('api-setup-banner').style.display = 'none';
+  addAIMessage('system', 'API key saved ✓ All 32 skills are now active. Click any skill card to launch a workflow.');
+}
+
+function handleInputKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function quickTask(prompt) {
+  if (!aiPanelOpen) toggleAIPanel();
+  document.getElementById('ai-input').value = prompt;
+  sendMessage();
+}
+
+function sendMessage() {
+  const input = document.getElementById('ai-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  if (!aiPanelOpen) toggleAIPanel();
+  const systemPrompt = buildSystemPrompt('General Assistant');
+  sendToClaudeWithSystem(msg, systemPrompt, 'You');
+}
+
+function sendToClaudeWithSystem(userMsg, systemPrompt, label) {
+  if (!aiPanelOpen) toggleAIPanel();
+  addUserMessage(userMsg);
+  const thinkingId = addThinkingMessage();
+  chatHistory.push({ role: 'user', content: userMsg });
+
+  if (!apiKey) {
+    removeMessage(thinkingId);
+    addAIMessage('error', 'Please enter your Anthropic API key in the AI panel to use Claude skills.');
+    return;
+  }
+
+  const btn = document.getElementById('ai-send-btn');
+  btn.disabled = true;
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      system: systemPrompt,
+      messages: chatHistory.slice(-10)
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    removeMessage(thinkingId);
+    btn.disabled = false;
+    if (data.content && data.content[0]) {
+      const reply = data.content[0].text;
+      chatHistory.push({ role: 'assistant', content: reply });
+      addAIMessage('Claude', reply);
+    } else if (data.error) {
+      addAIMessage('error', 'API error: ' + (data.error.message || JSON.stringify(data.error)));
+    }
+  })
+  .catch(err => {
+    removeMessage(thinkingId);
+    btn.disabled = false;
+    addAIMessage('error', 'Connection error: ' + err.message + '. Check your API key and internet connection.');
+  });
+}
+
+function addUserMessage(text) {
+  const msgs = document.getElementById('ai-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-user';
+  div.innerHTML = `<div class="msg-label">You</div><div class="msg-bubble">${escHtml(text)}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addAIMessage(label, text) {
+  const msgs = document.getElementById('ai-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  const isError = label === 'error';
+  div.innerHTML = `<div class="msg-label">${isError ? '⚠ Error' : label}</div>
+    <div class="msg-bubble" style="${isError ? 'border-color:var(--red);color:var(--red);' : ''}">${formatResponse(text)}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function addThinkingMessage() {
+  const msgs = document.getElementById('ai-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  const id = 'thinking-' + Date.now();
+  div.id = id;
+  div.innerHTML = `<div class="msg-label">Claude</div><div class="msg-bubble thinking">Thinking<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return id;
+}
+
+function removeMessage(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function formatResponse(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^#{1,3}\s+(.+)$/gm,'<strong style="color:var(--text);display:block;margin-top:8px;">$1</strong>')
+    .replace(/^[-•]\s+(.+)$/gm,'<span style="display:block;padding-left:12px;margin-top:2px;">• $1</span>')
+    .replace(/\n/g,'<br>');
+}
+
+// ============================================================
+// CALENDAR
+// ============================================================
+function buildCalendar() {
+  const now = new Date(2026, 4 + calOffset, 1); // May 2026 base
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent = `${monthNames[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date(2026, 4, 2); // May 2, 2026
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d => {
+    const h = document.createElement('div');
+    h.className = 'cal-day-header';
+    h.textContent = d;
+    grid.appendChild(h);
+  });
+
+  // Pad start
+  for (let i = 0; i < firstDay; i++) {
+    const prev = new Date(year, month, -firstDay + i + 1);
+    const el = document.createElement('div');
+    el.className = 'cal-day other-month';
+    el.innerHTML = `<div class="cal-day-num">${prev.getDate()}</div>`;
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = year === today.getFullYear() && month === today.getMonth() && d === today.getDate();
+    const dayEvents = allEvents.filter(e => e.date === dateStr);
+    const el = document.createElement('div');
+    el.className = 'cal-day' + (isToday ? ' today' : '') + (dayEvents.length ? ' has-events' : '');
+    el.innerHTML = `<div class="cal-day-num">${d}</div>`;
+    el.onclick = () => showDayEvents(dateStr, dayEvents);
+    grid.appendChild(el);
+  }
+
+  buildBizReminders();
+  buildUpcomingEvents();
+}
+
+function calNav(dir) { calOffset += dir; buildCalendar(); }
+
+function showDayEvents(dateStr, events) {
+  selectedDay = dateStr;
+  const d = new Date(dateStr + 'T12:00:00');
+  const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+  document.getElementById('cal-selected-label').textContent = d.toLocaleDateString('en-US', opts);
+  const container = document.getElementById('cal-day-events');
+  if (!events.length) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0;">No events — free day ✓</div>';
+    return;
+  }
+  container.innerHTML = events.map(e => `
+    <div class="event-item">
+      <div class="event-time">${e.time}</div>
+      <div class="event-name">${e.name}</div>
+      <span class="event-badge" style="background:${e.type==='personal'?'var(--bluebg)':'var(--accentbg)'};color:${e.type==='personal'?'var(--blue)':'var(--accent)'};">${e.type}</span>
+    </div>`).join('');
+}
+
+function buildUpcomingEvents() {
+  const today = '2026-05-02';
+  const upcoming = allEvents.filter(e => e.date >= today && e.date <= '2026-05-09').slice(0, 8);
+  const container = document.getElementById('upcoming-events-list');
+  if (!container) return;
+  if (!upcoming.length) { container.innerHTML = '<div style="color:var(--text3);font-size:12px;">No upcoming events</div>'; return; }
+  container.innerHTML = upcoming.map(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return `<div class="event-item">
+      <div class="event-time">${dayLabel}<br>${e.time}</div>
+      <div class="event-name">${e.name}</div>
+      <span class="event-badge" style="background:var(--bluebg);color:var(--blue);">${e.type}</span>
+    </div>`;
+  }).join('');
+}
+
+function buildBizReminders() {
+  const reminders = [
+    { date: 'Ongoing', name: 'Client status reports due', type: 'biz' },
+    { date: 'Monthly', name: 'Invoice retainer clients', type: 'biz' },
+    { date: 'Monthly', name: 'P&L financial review', type: 'biz' },
+    { date: 'Quarterly', name: 'Client renewal check (60-day rule)', type: 'biz' },
+  ];
+  const container = document.getElementById('biz-reminders');
+  if (!container) return;
+  container.innerHTML = reminders.map(r => `
+    <div class="event-item">
+      <div class="event-time">${r.date}</div>
+      <div class="event-name">${r.name}</div>
+      <span class="event-badge" style="background:var(--accentbg);color:var(--accent);">biz</span>
+    </div>`).join('');
+}
+
+// ============================================================
+// PIPELINE
+// ============================================================
+const PIPELINE_STAGES = [
+  { id: 0, name: 'Prospect', color: 'var(--text3)', bg: 'var(--bg3)' },
+  { id: 1, name: 'Discovery', color: 'var(--blue)', bg: 'var(--bluebg)' },
+  { id: 2, name: 'Proposal', color: 'var(--amber)', bg: 'var(--amberbg)' },
+  { id: 3, name: 'Negotiation', color: 'var(--purple)', bg: 'var(--purplebg)' },
+  { id: 4, name: 'Closed ✓', color: 'var(--accent)', bg: 'var(--accentbg)' },
+];
+
+function buildPipeline() {
+  const board = document.getElementById('pipeline-board');
+  if (!board) return;
+  board.innerHTML = '';
+  PIPELINE_STAGES.forEach(stage => {
+    const stageDeals = deals.filter(d => d.stage === stage.id);
+    const col = document.createElement('div');
+    col.className = 'pipeline-col';
+    col.innerHTML = `
+      <div class="pipeline-col-header" style="background:${stage.bg}">
+        <span class="pipeline-col-name" style="color:${stage.color}">${stage.name}</span>
+        <span class="pipeline-col-count" style="background:${stage.bg};color:${stage.color}">${stageDeals.length}</span>
+      </div>
+      ${stageDeals.length ? stageDeals.map(d => `
+        <div class="pipeline-card" onclick="openDealSkill(${d.id})">
+          <div class="pipeline-card-name">${d.name}</div>
+          <div class="pipeline-card-meta">${d.service}</div>
+          <div class="pipeline-card-value">$${Number(d.value).toLocaleString()}</div>
+        </div>`).join('') : `<div style="color:var(--text3);font-size:11px;padding:10px;text-align:center;">No deals</div>`}`;
+    board.appendChild(col);
+  });
+}
+
+function openDealSkill(dealId) {
+  const deal = deals.find(d => d.id === dealId);
+  if (!deal) return;
+  const skill = deal.stage === 0 ? SKILLS.find(s => s.id === 'discovery-call-prep') :
+                deal.stage === 2 ? SKILLS.find(s => s.id === 'proposal-generator') :
+                deal.stage === 3 ? SKILLS.find(s => s.id === 'proposal-followup') : null;
+  if (skill) openSkillModal({ ...skill, prompt: skill.prompt + `\n\nDeal: ${deal.name} — ${deal.service} — $${deal.value}` });
+}
+
+function openAddDeal() { document.getElementById('deal-modal').classList.add('open'); }
+function submitDeal() {
+  const name = document.getElementById('dl-name').value.trim();
+  if (!name) return;
+  const deal = { id: Date.now(), name, service: document.getElementById('dl-service').value, value: document.getElementById('dl-value').value || 0, stage: Number(document.getElementById('dl-stage').value) };
+  deals.push(deal);
+  localStorage.setItem('palmetto_deals', JSON.stringify(deals));
+  closeModal('deal-modal');
+  buildPipeline();
+  ['dl-name','dl-value'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ============================================================
+// CLIENTS
+// ============================================================
+function buildClientsGrid() {
+  const grid = document.getElementById('clients-grid');
+  if (!grid) return;
+  document.getElementById('metric-clients').textContent = clients.length;
+  if (!clients.length) {
+    grid.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:20px;text-align:center;grid-column:1/-1;">No clients yet. Add your first client to start tracking retainers.</div>';
+    return;
+  }
+  grid.innerHTML = clients.map(c => {
+    const daysLeft = c.endDate ? Math.ceil((new Date(c.endDate) - new Date()) / 86400000) : null;
+    const statusColor = !daysLeft ? 'var(--accent)' : daysLeft < 60 ? 'var(--amber)' : 'var(--accent)';
+    return `<div class="client-card" onclick="openClientSkills(${c.id})">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <div class="client-name">${c.name}</div>
+          <div class="client-meta">${c.contact} · ${c.service}</div>
+        </div>
+        <span class="client-status-badge" style="background:var(--accentbg);color:var(--accent)">Active</span>
+      </div>
+      <div class="client-retainer">$${Number(c.retainer).toLocaleString()}/mo</div>
+      ${daysLeft !== null ? `<div style="margin-top:8px;"><div class="metric-sub" style="color:${statusColor};">${daysLeft < 0 ? 'Contract expired' : daysLeft < 60 ? `⚠ ${daysLeft} days to renewal` : `${daysLeft} days remaining`}</div></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function openClientSkills(clientId) {
+  const client = clients.find(c => c.id === clientId);
+  if (!client) return;
+  const skill = SKILLS.find(s => s.id === 'status-reports');
+  if (skill) openSkillModal({ ...skill, prompt: skill.prompt.replace('[name]', client.name) });
+}
+
+function openAddClient() { document.getElementById('client-modal').classList.add('open'); }
+function submitClient() {
+  const name = document.getElementById('cl-name').value.trim();
+  if (!name) return;
+  const client = { id: Date.now(), name, contact: document.getElementById('cl-contact').value, service: document.getElementById('cl-service').value, retainer: document.getElementById('cl-retainer').value || 0, endDate: document.getElementById('cl-end').value };
+  clients.push(client);
+  localStorage.setItem('palmetto_clients', JSON.stringify(clients));
+  closeModal('client-modal');
+  buildClientsGrid();
+}
+
+// ============================================================
+// ADD EVENT
+// ============================================================
+function openAddEvent() {
+  const now = new Date();
+  document.getElementById('ev-datetime').value = now.toISOString().slice(0,16);
+  document.getElementById('event-modal').classList.add('open');
+}
+
+function submitEvent() {
+  const title = document.getElementById('ev-title').value.trim();
+  const dt = document.getElementById('ev-datetime').value;
+  if (!title || !dt) return;
+  const date = new Date(dt);
+  const event = {
+    date: dt.split('T')[0],
+    time: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+    name: title,
+    type: 'business'
+  };
+  allEvents.push(event);
+  allEvents.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+  closeModal('event-modal');
+  buildCalendar();
+  buildUpcomingEvents();
+  document.getElementById('ev-title').value = '';
+  addAIMessage('system', `Event added: "${title}" on ${event.date} at ${event.time}`);
+}
+
+// ============================================================
+// REVENUE PHASES
+// ============================================================
+function buildRevenuePhases() {
+  const phases = [
+    { num: 1, label: 'Land first 2 retainer clients', sub: 'Months 1–2 · Target: $5K MRR', pct: 10 },
+    { num: 2, label: 'Build to 4 retainers + platform income', sub: 'Months 3–4 · Target: $10K MRR', pct: 25 },
+    { num: 3, label: 'Stabilize to 6 retainers', sub: 'Months 5–6 · Target: $16K MRR', pct: 50 },
+    { num: 4, label: 'Add AI integration project pipeline', sub: 'Months 6–9 · $5K–$15K projects', pct: 65 },
+    { num: 5, label: 'Systemize delivery with a skill library', sub: 'Ongoing · 20–25 billable hrs/week', pct: 80 },
+    { num: 6, label: 'Renew and protect at 60-day mark', sub: 'Target 80%+ renewal rate', pct: 100 },
+  ];
+
+  const container = document.getElementById('revenue-phases');
+  if (!container) return;
+  container.innerHTML = phases.map(p => `
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="width:20px;height:20px;border-radius:50%;background:var(--accentbg);color:var(--accent);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.num}</div>
+      <div style="flex:1;">
+        <div style="font-size:12.5px;font-weight:500;color:var(--text);">${p.label}</div>
+        <div style="font-size:11px;color:var(--text3);">${p.sub}</div>
+      </div>
+      <div style="width:80px;">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${p.pct}%"></div></div>
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// NOTION
+// ============================================================
+function embedNotion(url) {
+  const inputUrl = url || document.getElementById('notion-url-input').value.trim();
+  if (!inputUrl) return;
+  // Convert notion.so URL to embeddable format
+  let embedUrl = inputUrl;
+  if (inputUrl.includes('notion.so') && !inputUrl.includes('embed')) {
+    embedUrl = inputUrl.replace('notion.so', 'notion.so').replace('https://notion.so', 'https://notion.so');
+  }
+  localStorage.setItem('palmetto_notion_url', inputUrl);
+  const frame = document.getElementById('notion-frame');
+  frame.innerHTML = `<iframe src="${embedUrl}" style="width:100%;height:700px;border:none;" allow="fullscreen" loading="lazy"></iframe>`;
+  if (url) document.getElementById('notion-url-input').value = url;
+}
+</script>
+</body>
+</html>
